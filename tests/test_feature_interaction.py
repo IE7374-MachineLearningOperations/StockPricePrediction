@@ -5,9 +5,9 @@ import sys
 import os
 
 # Add the src directory to the Python path
-sys.path.append(os.path.abspath('pipeline/airflow/dags/src'))
+sys.path.append(os.path.abspath('pipeline/airflow'))
 
-from feature_interactions import add_feature_interactions
+from dags.src.feature_interactions import add_feature_interactions
 
 def test_add_feature_interactions():
     # Create a sample DataFrame with necessary columns
