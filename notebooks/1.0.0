@@ -1,0 +1,10 @@
+Collecting numpy==1.20.0
+  Downloading numpy-1.20.0-cp37-cp37m-win_amd64.whl (13.6 MB)
+Requirement already satisfied: absl-py in c:\users\kandi\anaconda3\lib\site-packages (0.11.0)
+Requirement already satisfied: six in c:\users\kandi\anaconda3\lib\site-packages (from absl-py) (1.14.0)
+Installing collected packages: numpy
+  Attempting uninstall: numpy
+    Found existing installation: numpy 1.18.1
+    Uninstalling numpy-1.18.1:
+      Successfully uninstalled numpy-1.18.1
+Successfully installed numpy-1.20.0
