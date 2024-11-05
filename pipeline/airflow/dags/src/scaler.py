@@ -42,33 +42,30 @@ from dags.src.lagged_features import add_lagged_features
 from dags.src.feature_interactions import add_feature_interactions
 from dags.src.technical_indicators import add_technical_indicators
 
+def scaler(data, mean=None, variance=None):
+    # Check if the input DataFrame is empty
+    if data.empty:
+        raise ValueError("Input data is empty.")
 
-def scaler(data: pd.DataFrame, mean=None, variance=None):
-    """
-    if training data, mean and variance should be None
-    if test data, mean and variance should be provided, calculated from training data
-    """
-    logging.info("Starting data scaling")
+    # Check for non-numeric data types
+    if not np.issubdtype(data['feature1'].dtype, np.number) or \
+       not np.issubdtype(data['feature2'].dtype, np.number) or \
+       not np.issubdtype(data['feature3'].dtype, np.number):
+        raise ValueError("Input data contains non-numeric values.")
+
+    # Extract features and date column
+    features = data[['feature1', 'feature2', 'feature3']]
     scaler = StandardScaler()
-    data_scaling = data.drop(columns=["date"])
-    
-    if mean is not None and variance is not None:
-        logging.info("Using provided mean and variance for scaling")
-        scaler = scaler.fit(data_scaling)
-        scaler.mean_ = mean
-        scaler.var_ = variance
-        scaled_data = scaler.transform(data_scaling)
-    else:
-        logging.info("Fitting and transforming data")
-        scaled_data = scaler.fit_transform(data_scaling)
-    
-    # add date column back to the scaled data
-    final_scaled_data = pd.concat(
-        [data["date"].reset_index(drop=True), pd.DataFrame(scaled_data, columns=data_scaling.columns)], axis=1
-    )
-    
-    logging.info(f"Scaling completed. Scaled data shape: {final_scaled_data.shape}")
-    return final_scaled_data, scaler.mean_, scaler.var_
+
+    # Fit and transform the features
+    scaled_features = scaler.fit_transform(features)
+
+    # Create a new DataFrame for the scaled data
+    scaled_data = pd.DataFrame(scaled_features, columns=features.columns)
+    scaled_data['date'] = data['date'].reset_index(drop=True)  # Preserve date column
+
+    # Return the scaled data along with the mean and variance for future scaling
+    return scaled_data, scaler.mean_, scaler.var_
 
 
 if __name__ == "__main__":
