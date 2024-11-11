@@ -6,6 +6,7 @@ from airflow.operators.email import EmailOperator
 from airflow import configuration as conf
 import os
 from dotenv import load_dotenv, dotenv_values
+import yaml
 
 from src.download_data import (
     get_yfinance_data,
@@ -28,13 +29,20 @@ from src.scaler import scaler
 from src.pca import visualize_pca_components
 
 load_dotenv()
+import os
+import sys
+
+sys.path.append(os.path.abspath("."))
+
+with open("dags/config.yaml", "r") as file:
+    config = yaml.safe_load(file)
 
 
 # Define function to notify failure or sucess via an email
 def notify_success(context):
     success_email = EmailOperator(
         task_id="success_email",
-        to=os.getenv("EMAIL_TO"),
+        to=config["EMAIL_TO"],
         subject="Success Notification from Airflow",
         html_content="<p>The dag tasks succeeded.</p>",
         dag=context["dag"],
@@ -43,10 +51,9 @@ def notify_success(context):
 
 
 def notify_failure(context):
-
     failure_email = EmailOperator(
         task_id="failure_email",
-        to=os.getenv("EMAIL_TO"),
+        to=config["EMAIL_TO"],
         subject="Failure Notification from Airflow",
         html_content="<p>The dag tasks failed.</p>",
         dag=context["dag"],
@@ -68,17 +75,18 @@ default_args = {
 
 # Create a DAG instance named 'datapipeline' with the defined default arguments
 dag = DAG(
-    "Group10_Pipeline",
+    "Group10_DataPipeline_MLOps",
     default_args=default_args,
     description="Airflow DAG for the datapipeline",
     schedule_interval=None,  # Set the schedule interval or use None for manual triggering
     catchup=False,
 )
 
+
 # Define the email task
-send_email = EmailOperator(
-    task_id="send_email",
-    to=os.getenv("EMAIL_TO"),  # Email address of the recipient
+send_email_task = EmailOperator(
+    task_id="send_email_task",
+    to=config["EMAIL_TO"],  # Email address of the recipient
     subject="Notification from Airflow",
     html_content="<p>This is a notification email sent from Airflow indicating that the dag was triggered</p>",
     dag=dag,
@@ -199,7 +207,7 @@ visualize_pca_components_task = PythonOperator(
     >> add_technical_indicators_task
     >> scaler_task
     >> visualize_pca_components_task
-    >> send_email
+    >> send_email_task
 )
 
 # If this script is run directly, allow command-line interaction with the DAG

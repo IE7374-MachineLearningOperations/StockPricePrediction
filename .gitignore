@@ -3,9 +3,10 @@
 Manor/
 aws/
 # DVC tracked files
-*.dvc
-.dvc/
-
+#*.dvc
+#.dvc/
+.dvc/cache/
+.dvc/tmp/
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
 # website: http://jupyter.org/
@@ -15,6 +16,8 @@ aws/
 # IPython
 profile_default/
 ipython_config.py
+
+pipeline/airflow/dags/config.yaml
 
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
@@ -291,4 +294,4 @@ poetry.toml
 pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
-pipeline/airflow/.env
+# pipeline/airflow/.env

@@ -12,8 +12,9 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-parent_path = os.path.abspath(os.path.dirname(__file__))
-sys.path.append(os.path.dirname(os.path.dirname(parent_path)))  ## "add "airflow/"
+
+sys.path.append(os.path.abspath("pipeline/airflow"))
+sys.path.append(os.path.abspath("."))
 
 from dags.src.download_data import (
     get_yfinance_data,
@@ -36,7 +37,6 @@ def convert_type_of_columns(data: pd.DataFrame) -> pd.DataFrame:
     for col in object_columns:
         data[col] = pd.to_numeric(data[col], errors="coerce")
         logging.debug(f"Column {col} converted to numeric")
-
     if data.empty:
         logging.error("Data conversion failed, resulting DataFrame is empty")
     else:

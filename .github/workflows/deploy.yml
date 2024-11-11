@@ -1,0 +1,37 @@
+name: GCP Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v1
+      with:
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        project_id: striped-graph-440017-d7
+
+    - name: Authenticate Docker with GCP
+      run: |
+        gcloud auth configure-docker us-east1-docker.pkg.dev
+        
+    - name: Build Docker Image
+      run: |
+        docker build -t us-east1-docker.pkg.dev/striped-graph-440017-d7/mlopsgroup10/mlops-name:$GITHUB_SHA .
+
+    - name: Push Docker Image to Artifact Registry
+      run: |
+        docker push us-east1-docker.pkg.dev/striped-graph-440017-d7/mlopsgroup10/mlops-name:$GITHUB_SHA
+
+    - name: Deploy to GCP service
+      run: |
+        gcloud compute instances update-container YOUR_INSTANCE_NAME \
+          --container-image us-east1-docker.pkg.dev/striped-graph-440017-d7/mlopsgroup10/mlops-name:$GITHUB_SHA

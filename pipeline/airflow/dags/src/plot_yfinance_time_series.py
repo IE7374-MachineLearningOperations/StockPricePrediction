@@ -14,12 +14,9 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 
-# Setting matplotlib logging level to suppress debug messages
-logging.getLogger('matplotlib').setLevel(logging.WARNING)
+sys.path.append(os.path.abspath("pipeline/airflow"))
+sys.path.append(os.path.abspath("."))
 
-parent_path = os.path.abspath(os.path.dirname(__file__))
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(parent_path))))
-sys.path.append(root_path)
 from dags.src.download_data import (
     get_yfinance_data,
     get_fama_french_data,

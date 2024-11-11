@@ -8,13 +8,22 @@ import sys
 import os
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 from sklearn.decomposition import PCA
+import logging
 
-parent_path = os.path.abspath(os.path.dirname(__file__))
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
 
-root_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(parent_path))))
-sys.path.append(root_path)
+# Setting matplotlib logging level to suppress debug messages
+logging.getLogger("matplotlib").setLevel(logging.WARNING)
+
+
+sys.path.append(os.path.abspath("pipeline/airflow"))
+sys.path.append(os.path.abspath("."))
+
 from dags.src.download_data import (
     get_yfinance_data,
     get_fama_french_data,
@@ -44,16 +53,21 @@ def apply_pca(data: pd.DataFrame, variance_threshold=0.95):
     - explained_variance: Array of explained variance ratios by each PCA component.
     - n_components: Number of PCA components selected based on the variance threshold.
     """
+
+    logging.info(f"Applying PCA with variance threshold: {variance_threshold}")
     data_pca = data.drop(columns=["date"])
+    logging.debug(f"Shape of data for PCA: {data_pca.shape}")
+
     # Apply PCA
     pca = PCA(n_components=variance_threshold)
     reduced_data = pca.fit_transform(data_pca)
+
     # Check the explained variance by each component
     explained_variance = pca.explained_variance_ratio_
     n_components = pca.n_components_
 
-    print("Explained variance by component:", explained_variance)
-    print("Total components selected:", n_components)
+    logging.info(f"PCA completed. Number of components: {n_components}")
+    logging.debug(f"Explained variance by component: {explained_variance}")
 
     return reduced_data
 
@@ -65,16 +79,25 @@ def visualize_pca_components(data: pd.DataFrame, variance_threshold=0.95):
     Returns:
     - None
     """
+
+    logging.info("Visualizing PCA components")
     reduced_data = apply_pca(data, variance_threshold)
+
     # Plot PCA components
     plt.figure(figsize=(10, 8))
     plt.scatter(reduced_data[:, 0], reduced_data[:, 1], alpha=0.5)
     plt.xlabel("Principal Component 1")
     plt.ylabel("Principal Component 2")
     plt.title("PCA Components")
+
+    # Ensure the assets directory exists
     if not os.path.exists("artifacts"):
         os.makedirs("artifacts")
-    plt.savefig("artifacts/pca_components.png")
+        logging.info(f"Created directory: artifacts")
+
+    plt.savefig(f"artifacts/pca_components.png")
+    logging.info(f"PCA components plot saved to artifacts/pca_components.png")
+    plt.show()
 
 
 if __name__ == "__main__":

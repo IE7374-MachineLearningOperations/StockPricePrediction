@@ -1,116 +1,160 @@
 .
 ├── assets
+│   ├── airflow_dags.jpeg
+│   ├── airflow_graph.jpeg
+│   ├── airflow_logging.jpeg
 │   ├── correlation_matrix_after_removing_correlated_features.png
+│   ├── email_notification.jpeg
+│   ├── gantt.jpeg
+│   ├── gcpbucket.png
+│   ├── MLOps Group10 Diag.png
 │   ├── pca_components.png
+│   ├── pca_components.png.dvc
+│   ├── test_functions.jpeg
 │   └── yfinance_time_series.png
-├── assets.dvc
 ├── Assignments_Submissions
-│   └── file.txt
+│   ├── DataPipeline Phase
+│   │   ├── Airflow README.md
+│   │   ├── Notebooks README.md
+│   │   └── Project README.md
+│   └── Scoping Phase
+│       ├── Data Collection Group 10.pdf
+│       ├── errors-failure Group 10.pdf
+│       ├── Group 10 Scoping Document.pdf
+│       └── user-needs group 10.pdf
 ├── Assignments_Submissions.dvc
 ├── current.txt
 ├── current.txt.dvc
 ├── data
 │   ├── ADS_Index.csv
-│   ├── application_default_credentials.json
 │   ├── fama_french.csv
-│   ├── final_dataset.csv
-│   ├── formatted_datasets.dvc
 │   ├── FRED_Variables.dvc
-│   ├── merged_original_dataset.csv
-│   └── preprocess_data.ipynb
-├── gcpdeploy.dvc
+│   └── preprocessed
+│       ├── final_dataset.csv
+│       ├── formatted_datasets.dvc
+│       └── merged_original_dataset.csv
+├── GCP
+│   └── application_default_credentials.json
 ├── LICENSE
 ├── LICENSE.dvc
-├── notebooks.dvc
+├── models
 ├── pipeline
-│   └── airflow
-│       ├── artifacts
-│       │   ├── correlation_matrix_after_removing_correlated_features.png
-│       │   ├── pca_components.png
-│       │   └── yfinance_time_series.png
-│       ├── dags
-│       │   ├── airflow.py
-│       │   ├── data
-│       │   │   ├── ADS_index.csv
-│       │   │   ├── fama_french.csv
-│       │   │   ├── FRED_Variables
-│       │   │   │   ├── AMERIBOR.csv
-│       │   │   │   ├── BAMLH0A0HYM2.csv
-│       │   │   │   ├── BAMLH0A0HYM2EY.csv
-│       │   │   │   ├── CBBTCUSD.csv
-│       │   │   │   ├── CBETHUSD.csv
-│       │   │   │   ├── DAAA.csv
-│       │   │   │   ├── DBAA.csv
-│       │   │   │   ├── DCOILBRENTEU.csv
-│       │   │   │   ├── DCOILWTICO.csv
-│       │   │   │   ├── DCPF1M.csv
-│       │   │   │   ├── DCPN3M.csv
-│       │   │   │   ├── DEXJPUS.csv
-│       │   │   │   ├── DEXUSEU.csv
-│       │   │   │   ├── DEXUSUK.csv
-│       │   │   │   ├── DGS10.csv
-│       │   │   │   ├── DGS1.csv
-│       │   │   │   ├── DHHNGSP.csv
-│       │   │   │   ├── NIKKEI225.csv
-│       │   │   │   ├── OBMMIJUMBO30YF.csv
-│       │   │   │   ├── RIFSPPFAAD90NB.csv
-│       │   │   │   ├── T10Y3M.csv
-│       │   │   │   ├── T10YIE.csv
-│       │   │   │   ├── T5YIE.csv
-│       │   │   │   ├── USRECD.csv
-│       │   │   │   ├── USRECDM.csv
-│       │   │   │   ├── USRECDP.csv
-│       │   │   │   └── VIXCLS.csv
-│       │   │   └── merged_original_dataset.csv
-│       │   ├── __pycache__
-│       │   │   └── airflow.cpython-312.pyc
-│       │   └── src
-│       │       ├── convert_column_dtype.py
-│       │       ├── correlation.py
-│       │       ├── download_data.py
-│       │       ├── feature_interactions.py
-│       │       ├── handle_missing.py
-│       │       ├── keep_latest_data.py
-│       │       ├── lagged_features.py
-│       │       ├── pca.py
-│       │       ├── plot_yfinance_time_series.py
-│       │       ├── __pycache__
-│       │       │   ├── convert_column_dtype.cpython-312.pyc
-│       │       │   ├── correlation.cpython-312.pyc
-│       │       │   ├── download_data.cpython-312.pyc
-│       │       │   ├── feature_interactions.cpython-312.pyc
-│       │       │   ├── handle_missing.cpython-312.pyc
-│       │       │   ├── keep_latest_data.cpython-312.pyc
-│       │       │   ├── lagged_features.cpython-312.pyc
-│       │       │   ├── pca.cpython-312.pyc
-│       │       │   ├── plot_yfinance_time_series.cpython-312.pyc
-│       │       │   ├── remove_weekend_data.cpython-312.pyc
-│       │       │   ├── Requirement.cpython-312.pyc
-│       │       │   ├── scaler.cpython-312.pyc
-│       │       │   └── technical_indicators.cpython-312.pyc
-│       │       ├── remove_weekend_data.py
-│       │       ├── scaler.py
-│       │       └── technical_indicators.py
-│       ├── docker-compose.yaml
-│       └── logs
-│           └── scheduler
-│               └── latest -> /opt/airflow/logs/scheduler/2024-11-03
-├── pipeline.dvc
+│   ├── airflow
+│   │   ├── artifacts
+│   │   │   ├── correlation_matrix_after_removing_correlated_features.png
+│   │   │   ├── pca_components.png
+│   │   │   └── yfinance_time_series.png
+│   │   ├── dags
+│   │   │   ├── airflow.py
+│   │   │   ├── data
+│   │   │   │   ├── ADS_index.csv
+│   │   │   │   ├── fama_french.csv
+│   │   │   │   ├── final_dataset.csv
+│   │   │   │   ├── FRED_Variables
+│   │   │   │   │   ├── AMERIBOR.csv
+│   │   │   │   │   ├── BAMLH0A0HYM2.csv
+│   │   │   │   │   ├── BAMLH0A0HYM2EY.csv
+│   │   │   │   │   ├── CBBTCUSD.csv
+│   │   │   │   │   ├── CBETHUSD.csv
+│   │   │   │   │   ├── DAAA.csv
+│   │   │   │   │   ├── DBAA.csv
+│   │   │   │   │   ├── DCOILBRENTEU.csv
+│   │   │   │   │   ├── DCOILWTICO.csv
+│   │   │   │   │   ├── DCPF1M.csv
+│   │   │   │   │   ├── DCPN3M.csv
+│   │   │   │   │   ├── DEXJPUS.csv
+│   │   │   │   │   ├── DEXUSEU.csv
+│   │   │   │   │   ├── DEXUSUK.csv
+│   │   │   │   │   ├── DGS10.csv
+│   │   │   │   │   ├── DGS1.csv
+│   │   │   │   │   ├── DHHNGSP.csv
+│   │   │   │   │   ├── NIKKEI225.csv
+│   │   │   │   │   ├── OBMMIJUMBO30YF.csv
+│   │   │   │   │   ├── RIFSPPFAAD90NB.csv
+│   │   │   │   │   ├── T10Y3M.csv
+│   │   │   │   │   ├── T10YIE.csv
+│   │   │   │   │   ├── T5YIE.csv
+│   │   │   │   │   ├── USRECD.csv
+│   │   │   │   │   ├── USRECDM.csv
+│   │   │   │   │   ├── USRECDP.csv
+│   │   │   │   │   └── VIXCLS.csv
+│   │   │   │   └── merged_original_dataset.csv
+│   │   │   ├── __pycache__
+│   │   │   │   └── airflow.cpython-312.pyc
+│   │   │   └── src
+│   │   │       ├── convert_column_dtype.py
+│   │   │       ├── correlation.py
+│   │   │       ├── download_data.py
+│   │   │       ├── feature_interactions.py
+│   │   │       ├── handle_missing.py
+│   │   │       ├── keep_latest_data.py
+│   │   │       ├── lagged_features.py
+│   │   │       ├── pca.py
+│   │   │       ├── plot_yfinance_time_series.py
+│   │   │       ├── __pycache__
+│   │   │       │   ├── convert_column_dtype.cpython-312.pyc
+│   │   │       │   ├── correlation.cpython-312.pyc
+│   │   │       │   ├── download_data.cpython-312.pyc
+│   │   │       │   ├── feature_interactions.cpython-312.pyc
+│   │   │       │   ├── handle_missing.cpython-312.pyc
+│   │   │       │   ├── keep_latest_data.cpython-312.pyc
+│   │   │       │   ├── lagged_features.cpython-312.pyc
+│   │   │       │   ├── pca.cpython-312.pyc
+│   │   │       │   ├── plot_yfinance_time_series.cpython-312.pyc
+│   │   │       │   ├── remove_weekend_data.cpython-312.pyc
+│   │   │       │   ├── Requirement.cpython-312.pyc
+│   │   │       │   ├── scaler.cpython-312.pyc
+│   │   │       │   └── technical_indicators.cpython-312.pyc
+│   │   │       ├── remove_weekend_data.py
+│   │   │       ├── scaler.py
+│   │   │       └── technical_indicators.py
+│   │   ├── docker-compose.yaml
+│   │   ├── dvc.yaml
+│   │   ├── logs
+│   │   │   └── scheduler
+│   │   │       ├── latest -> /opt/airflow/logs/scheduler/2024-11-05
+│   │   │       └── latest~HEAD
+│   │   ├── plugins
+│   │   ├── tests
+│   │   │   ├── test_convert_column_dtype.py
+│   │   │   ├── test_correlation.py
+│   │   │   ├── test_download_data.py
+│   │   │   ├── test_feature_interaction.py
+│   │   │   ├── test_handle_missing.py
+│   │   │   ├── test_keep_latest_data.py
+│   │   │   ├── test_lagged_features.py
+│   │   │   ├── test_pca.py
+│   │   │   ├── test_plot_yfinance_time_series.py
+│   │   │   ├── test_remove_weekend_data.py
+│   │   │   ├── test_scaler.py
+│   │   │   └── test_technical_indicators.py
+│   │   └── working_data
+│   ├── pipelinetree.txt
+│   └── README.md
 ├── README.md
 ├── README.md.dvc
 ├── requirements.txt
 ├── requirements.txt.dvc
 ├── src
-│   └── dataapi.py
+│   ├── data_preprocessing.ipynb
+│   ├── DataSchema_Stats.ipynb
+│   ├── Feature Engineering.ipynb
+│   ├── PROJECT_DATA_CLEANING.ipynb
+│   └── README.md
 ├── src.dvc
 ├── test.dvc
 └── tests
     ├── test_convert_column_dtype.py
     ├── test_correlation.py
     ├── test_download_data.py
+    ├── test_feature_interaction.py
     ├── test_handle_missing.py
     ├── test_keep_latest_data.py
+    ├── test_lagged_features.py
+    ├── test_pca.py
     ├── test_plot_yfinance_time_series.py
-    └── test_remove_weekend_data.py
+    ├── test_remove_weekend_data.py
+    ├── test_scaler.py
+    └── test_technical_indicators.py
 
-17 directories, 97 files
+25 directories, 133 files

@@ -66,9 +66,8 @@ x-airflow-common:
     AIRFLOW__SMTP__SMTP_USER: print.document.2@gmail.com
     AIRFLOW__SMTP__SMTP_PASSWORD: smfd sfin kxnr hsas
     AIRFLOW__SMTP__SMTP_MAIL_FROM: print.document.2@gmail.com
-    EMAIL_TO: girimanohar.v@gmail.com 
-    AIRFLOW__SMTP__SMTP_STARTTLS: True # Use TLS if required
-    AIRFLOW__SMTP__SMTP_SSL: False # Use SSL if required
+    AIRFLOW__SMTP__SMTP_STARTTLS: "True" # Use TLS if required
+    AIRFLOW__SMTP__SMTP_SSL: "False" # Use SSL if required
     AIRFLOW__SMTP__SMTP_TIMEOUT: 30
     AIRFLOW__SMTP__SMTP_RETRY_LIMIT: 5
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- pandas scikit-learn kneed matplotlib seaborn numpy yfinance fredapi }
