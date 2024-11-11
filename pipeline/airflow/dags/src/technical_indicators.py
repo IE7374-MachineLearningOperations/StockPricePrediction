@@ -17,7 +17,7 @@ logging.basicConfig(
 )
 
 # Setting matplotlib logging level to suppress debug messages
-logging.getLogger("matplotlib").setLevel(logging.WARNING)
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
 
 parent_path = os.path.abspath(os.path.dirname(__file__))
 # sys.path.append(os.path.dirname(os.path.dirname(parent_path)))
@@ -53,6 +53,7 @@ def add_technical_indicators(data: pd.DataFrame) -> pd.DataFrame:
     Returns:
     - DataFrame with additional technical indicators.
     """
+    logging.info("Starting to add technical indicators")
 
     logging.info("Starting to add technical indicators")
 
@@ -85,9 +86,7 @@ def add_technical_indicators(data: pd.DataFrame) -> pd.DataFrame:
     # Drop NaN values introduced by rolling calculations
     original_shape = data.shape
     data = data.dropna()
-    logging.info(
-        f"Dropped rows with NaN values. Rows before: {original_shape[0]}, Rows after: {data.shape[0]}"
-    )
+    logging.info(f"Dropped rows with NaN values. Rows before: {original_shape[0]}, Rows after: {data.shape[0]}")
 
     logging.info(f"Technical indicators added. New shape: {data.shape}")
     return data
@@ -138,7 +137,7 @@ if __name__ == "__main__":
         if not os.path.exists("artifacts"):
             os.makedirs("artifacts")
             logging.info("Created artifacts directory")
-
+        
         technical_data.to_csv("artifacts/processed_data_with_technical_indicators.csv", index=False)
         logging.info("Processed data saved to artifacts/processed_data_with_technical_indicators.csv")
     except Exception as e:

@@ -17,6 +17,15 @@ logging.basicConfig(
 )
 
 # Setting matplotlib logging level to suppress debug messages
+logging.getLogger('matplotlib').setLevel(logging.WARNING)
+
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+)
+
+# Setting matplotlib logging level to suppress debug messages
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
 sys.path.append(os.path.abspath("pipeline/airflow"))
@@ -109,7 +118,7 @@ if __name__ == "__main__":
         if not os.path.exists("artifacts"):
             os.makedirs("artifacts")
             logging.info("Created artifacts directory")
-
+        
         interaction_data.to_csv("artifacts/processed_data.csv", index=False)
         logging.info("Processed data saved to artifacts/processed_data.csv")
     except Exception as e:
