@@ -9,6 +9,7 @@ import sys
 sys.path.append(os.path.abspath("pipeline/airflow"))
 from dags.src.pca import apply_pca, visualize_pca_components
 
+
 @pytest.fixture
 def sample_data():
     np.random.seed(42)
@@ -25,6 +26,7 @@ def sample_data():
     )
     return data
 
+
 def test_apply_pca(sample_data):
     # Get the reduced data from apply_pca
     reduced_data = apply_pca(sample_data, variance_threshold=0.95)
@@ -34,6 +36,7 @@ def test_apply_pca(sample_data):
 
     # Check if the shape of reduced_data is correct
     assert reduced_data.shape[0] == len(sample_data)
+
 
 def test_visualize_pca_components(sample_data, monkeypatch):
     # Mock plt.show to avoid displaying the plot during testing
@@ -53,6 +56,7 @@ def test_visualize_pca_components(sample_data, monkeypatch):
     assert ax.get_xlabel() == "Principal Component 1"
     assert ax.get_ylabel() == "Principal Component 2"
     assert ax.get_title() == "PCA Components"
+
 
 if __name__ == "__main__":
     pytest.main([__file__])

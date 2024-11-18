@@ -1,0 +1,7 @@
+[core]
+    remote = myremote
+    autostage = true
+['remote "myremote"']
+    url = gs://stock_price_prediction_dataset/DVC
+['remote "gcs_remote"']
+    url = gs://stock_price_prediction_dataset/Data

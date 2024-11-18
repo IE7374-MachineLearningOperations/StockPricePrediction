@@ -1,0 +1,5 @@
+outs:
+- md5: 00b2f65a78688d3e02cd1be5ff35b027
+  size: 131942
+  hash: md5
+  path: pca_components.png
