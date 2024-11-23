@@ -3,6 +3,7 @@ name: Model Training
 on:
   push:
     branches:
+      - main
       - citest  
 
 jobs:
@@ -31,16 +32,17 @@ jobs:
         run: |
           pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
 
-      # Step 5: Authenticate with GCP (Main Branch Only)
+      # Step 5: Authenticate with GCP
       - name: Authenticate to GCP
-        if: ${{ github.ref == 'refs/heads/citest' }}  
         env:
           GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GCP_REGION: ${{ secrets.GOOGLE_CLOUD_REGION }}
           GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         run: |
           echo "${GCP_SERVICE_ACCOUNT_KEY}" | base64 --decode > ${HOME}/gcp-key.json
           gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
           gcloud config set project ${GCP_PROJECT_ID}
+          gcloud config set compute/region ${GCP_REGION}
 
       # # Step 6: Conditional Model Training
       # - name: Trigger Model Training
@@ -48,9 +50,9 @@ jobs:
       #     GCP_BUCKET_NAME: ${{ secrets.GCP_BUCKET_NAME }}
       #   run: |
       #     if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-      #       # Production Training on Google Cloud AI Platform
+      #       echo "Running production model training on GCP"
       #       gcloud ai-platform jobs submit training model_training_$(date +%Y%m%d_%H%M%S) \
-      #         --region us-central1 \
+      #         --region ${GCP_REGION} \
       #         --module-name trainer.task \
       #         --package-path ./trainer \
       #         --python-version 3.10 \
@@ -59,7 +61,6 @@ jobs:
       #         -- \
       #         --additional_training_args
       #     else
-      #       # Test Training Locally for the test branch
       #       echo "Running model training locally for testing"
       #       python trainer/task.py --test_data ./data/test_data.csv
       #     fi

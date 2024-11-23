@@ -16,6 +16,10 @@ To read current phase:
 - [Airflow Implementation](#airflow-implementation)
 - [Pipeline Components](#pipeline-components)
 - [Setup and Usage](#setup-and-usage)
+- [Environment Setup](#environment-setup)
+- [Running the Pipeline](#running-the-pipeline)
+- [Test Functions](#test-functions)
+- [Reproducibility and Data Versioning](#reproducibility-and-data-versioning)
 - [Data Sources](#data-sources)
 
 ---
@@ -202,10 +206,132 @@ To set up and run the pipeline:
 
    > Refer to [Running Pipeline](https://github.com/IE7374-MachineLearningOperations/StockPricePrediction/tree/main?tab=readme-ov-file#running-the-pipeline)
 
+
+## Environment Setup
+
+### Prerequisites
+
+To set up and run this project, ensure the following are installed:
+
+- **Python** (3.8 or later)
+- **Docker** (for running Apache Airflow)
+- **DVC** (for data version control)
+- **Google Cloud SDK** (we are deploying on GCP)
+
+### Installation Steps
+
+1. **Clone the Repository**
+   ```bash
+   git clone https://github.com/IE7374-MachineLearningOperations/StockPricePrediction.git
+   cd Stock-Price-Prediction
+   ```
+
+2. **Install Python Dependencies**
+   Install all required packages listed in `requirements.txt`:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Initialize DVC**
+   Set up DVC to manage large data files by pulling the tracked data:
+   ```bash
+   dvc pull
+   ```
+---
+
+## Running the Pipeline
+
+To execute the data pipeline, follow these steps:
+
+1. **Start Airflow Services**
+   Run Docker Compose to start services of the Airflow web server, scheduler:
+   ```bash
+   cd pipeline/airflow/
+   docker-compose up
+   ```
+
+2. **Access Airflow UI**
+   Open `http://localhost:8080` in your browser. Log into the Airflow UI and enable the DAG
+
+3. **Trigger the DAG**
+   Trigger the DAG manually to start processing. The pipeline will:
+   - Ingest raw data and preprocess it.
+   - Perform correlation analysis to identify redundant features.
+   - Execute PCA to reduce dimensionality.
+   - Generate visualizations, such as time series plots and correlation matrices.
+
+4. **Check Outputs**
+   Once completed, check the output files and images in the `artifcats/` folder.
+
+or 
+
+```sh
+# Step 1: Activate virtual environment: 
+cd airflow_env/ # (go to Airflow environment and open in terminal)
+source bin/activate
+
+# Step 2: Install Airflow (not required if done before)
+pip install apache-airflow
+
+# Step 3: Initialize Airflow database (not required if done before)
+airflow db init
+
+# Step 4: Start Airflow web server and airflow scheduler
+airflow webserver -p 8080 & airflow scheduler
+
+# Step 5: Access Airflow UI in your default browser
+# http://localhost:8080
+
+# Step 6: Deactivate virtual environment (after work completion)
+deactivate
+```
+
+---
+## Test Functions
+   Run all tests in the `tests` directory
+   ```bash
+   pytest tests/
+   ```
+---
+## Reproducibility and Data Versioning
+
+We used **DVC (Data Version Control)** for files management.
+
+### DVC Setup
+1. **Initialize DVC** (not required if already initialize):
+   ```bash
+   dvc init
+   ```
+
+2. **Pull Data Files**
+   Pull the DVC-tracked data files to ensure all required datasets are available:
+   ```bash
+   dvc pull
+   ```
+
+3. **Data Versioning**
+   Data files are generated with `.dvc` files in the repository
+
+4. **Tracking New Data**
+   If new files are added, to track them. Example:
+   ```bash
+   dvc add <file-path>
+   dvc push
+   ```
+5. **Our Project Bucket**
+
+![GCP Bucket](https://github.com/IE7374-MachineLearningOperations/StockPricePrediction/blob/v1.0/assets/gcpbucket.png)
+
+---
+
 ### Data Sources
 
 1. **ADS Index**: Tracks economic trends and business cycles.
 2. **Fama-French Factors**: Provides historical data for financial research.
 3. **FRED Variables**: Includes various economic indicators, such as AMERIBOR, NIKKEI 225, and VIX.
 4. **YFinance**: Pulls historical stock data ('GOOGL') for financial time-series analysis.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/IE7374-MachineLearningOperations/StockPricePrediction/blob/2abdea96ee56b51357cd519a9f5e89126b9c87bb/LICENSE) file.
 

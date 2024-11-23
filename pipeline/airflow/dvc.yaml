@@ -1,72 +1,28 @@
 stages:
   download_data:
-    cmd: python pipeline/airflow/dags/src/download_data.py
+    cmd: python dags/src/download_data.py
     deps:
-      - pipeline/airflow/dags/src/download_data.py
+      -  dags/src/download_data.py
     outs:
-      - pipeline/airflow/dags/data/merged_original_dataset.csv
-    metrics:
-      - pipeline/airflow/dags/data/merged_original_dataset.csv
-
-  handle_missing_data:
-    cmd: python pipeline/airflow/dags/src/handle_missing.py
-    deps:
-      - pipeline/airflow/dags/src/handle_missing.py
-      - pipeline/airflow/dags/data/ADS_index.csv
-      - pipeline/airflow/dags/data/fama_french.csv
-    outs:
-      - pipeline/airflow/dags/data/merged_dataset_with_missing_values_handled.csv
-
+      -  dags/data/merged_original_dataset.csv
+    
   correlation_analysis:
-    cmd: python pipeline/airflow/dags/src/correlation.py
+    cmd: python  dags/src/correlation.py
     deps:
-      - pipeline/airflow/dags/src/correlation.py
-      - pipeline/airflow/dags/data/merged_dataset_with_missing_values_handled.csv
+      -  dags/src/correlation.py
     outs:
-      - pipeline/airflow/artifacts/correlation_matrix_after_removing_correlated_features.png
+      -  artifacts/correlation_matrix_after_removing_correlated_features.png
 
   pca_analysis:
-    cmd: python pipeline/airflow/dags/src/pca.py
+    cmd: python  dags/src/pca.py
     deps:
-      - pipeline/airflow/dags/src/pca.py
-      - pipeline/airflow/dags/data/merged_dataset_with_missing_values_handled.csv
+      -  dags/src/pca.py
     outs:
-      - pipeline/airflow/artifacts/pca_components.png
+      -  artifacts/pca_components.png
 
   plot_time_series:
-    cmd: python pipeline/airflow/dags/src/plot_yfinance_time_series.py
+    cmd: python  dags/src/plot_yfinance_time_series.py
     deps:
-      - pipeline/airflow/dags/src/plot_yfinance_time_series.py
-      - pipeline/airflow/dags/data/merged_dataset_with_missing_values_handled.csv
+      -  dags/src/plot_yfinance_time_series.py
     outs:
-      - pipeline/airflow/artifacts/yfinance_time_series.png
-
-  export_models:
-    cmd: python pipeline/airflow/dags/src/models/export_models.py
-    deps:
-      - pipeline/airflow/dags/src/models/export_models.py
-      - models/cleaned_data.csv
-      - models/KNN.ipynb
-      - models/linear_regression.ipynb
-      - models/LSTM.ipynb
-      - models/RF_Model.ipynb
-      - models/SVM.ipynb
-      - models/XGBoost.ipynb
-    outs:
-      - pipeline/airflow/artifacts/trained_models/ElasticNet.pkl
-      - pipeline/airflow/artifacts/trained_models/LSTM.pkl
-      - pipeline/airflow/artifacts/trained_models/Lasso.pkl
-      - pipeline/airflow/artifacts/trained_models/Ridge.pkl
-      - pipeline/airflow/artifacts/trained_models/XGBoost.pkl
-
-  upload_to_gcp:
-    cmd: gsutil -m cp -r pipeline/airflow/artifacts gs://stock_price_prediction_dataset/artifacts/
-    deps:
-      - pipeline/airflow/artifacts/correlation_matrix_after_removing_correlated_features.png
-      - pipeline/airflow/artifacts/pca_components.png
-      - pipeline/airflow/artifacts/yfinance_time_series.png
-      - pipeline/airflow/artifacts/trained_models/ElasticNet.pkl
-      - pipeline/airflow/artifacts/trained_models/LSTM.pkl
-      - pipeline/airflow/artifacts/trained_models/Lasso.pkl
-      - pipeline/airflow/artifacts/trained_models/Ridge.pkl
-      - pipeline/airflow/artifacts/trained_models/XGBoost.pkl
+      -  artifacts/yfinance_time_series.png

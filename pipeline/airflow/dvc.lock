@@ -5,8 +5,8 @@ stages:
     deps:
     - path: dags/src/download_data.py
       hash: md5
-      md5: 639fd25b6bb8e76647d1d6edcd9cc45a
-      size: 4375
+      md5: decfb6ebc66e80f7499ec5f7086e8eab
+      size: 6267
     outs:
     - path: dags/data/merged_original_dataset.csv
       hash: md5
@@ -28,48 +28,36 @@ stages:
       md5: 8c8181058c73ce54b1c2982e03f4267f
       size: 1910
   correlation_analysis:
-    cmd: python dags/src/correlation.py
+    cmd: python  dags/src/correlation.py
     deps:
-    - path: dags/data/merged_original_dataset.csv
-      hash: md5
-      md5: b2b9bc7f32346df320038efb92b58976
-      size: 5796288
     - path: dags/src/correlation.py
       hash: md5
-      md5: 403cf82a2408b9a88d84c21f1115b197
-      size: 3291
+      md5: 07af3e996f661ffb676df05509346b68
+      size: 3290
     outs:
     - path: artifacts/correlation_matrix_after_removing_correlated_features.png
       hash: md5
       md5: 1c951a8e3e735df417f57de6f226f218
       size: 141802
   pca_analysis:
-    cmd: python dags/src/pca.py
+    cmd: python  dags/src/pca.py
     deps:
-    - path: dags/data/merged_original_dataset.csv
-      hash: md5
-      md5: b2b9bc7f32346df320038efb92b58976
-      size: 5796288
     - path: dags/src/pca.py
       hash: md5
-      md5: 85aec39da3723cf935bc64aefd5f79b5
-      size: 3876
+      md5: 38ed3c21d9f85c42a95057bebce6978d
+      size: 3947
     outs:
     - path: artifacts/pca_components.png
       hash: md5
       md5: 0deccfef634df5bcbe0f8b7df7e8df55
       size: 130657
   plot_time_series:
-    cmd: python dags/src/plot_yfinance_time_series.py
+    cmd: python  dags/src/plot_yfinance_time_series.py
     deps:
-    - path: dags/data/merged_original_dataset.csv
-      hash: md5
-      md5: b2b9bc7f32346df320038efb92b58976
-      size: 5796288
     - path: dags/src/plot_yfinance_time_series.py
       hash: md5
-      md5: 5c8ac5714ee3b2803099c83666efdb3d
-      size: 2340
+      md5: 25129620bee38135338f3e735506ce2a
+      size: 2339
     outs:
     - path: artifacts/yfinance_time_series.png
       hash: md5

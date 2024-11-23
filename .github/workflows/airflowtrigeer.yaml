@@ -1,0 +1,66 @@
+name: Trigger Airflow DAG Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - citest
+  workflow_dispatch:
+
+jobs:
+  trigger_airflow_dag:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python environment 
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      # Step 3: Install Dependencies 
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Start Airflow using Docker Compose
+      - name: Start Airflow Services
+        run: |
+          mkdir -p ./dags ./logs ./plugins
+          docker-compose -f pipeline/airflow/docker-compose.yaml up -d
+
+      # Step 5: Wait for Airflow Services to be Up
+      - name: Wait for Airflow to initialize
+        run: |
+          sleep 180  # Wait 3 minutes for Airflow to fully initialize
+
+      # Step 6: Trigger DAG via Airflow CLI
+      - name: Trigger Airflow DAG
+        run: |
+          docker-compose -f pipeline/airflow/docker-compose.yaml exec airflow-scheduler airflow dags trigger airflow  # Replace 'airflow' with your actual DAG ID
+
+      # Step 7: Monitor Airflow DAG Execution 
+      - name: Monitor DAG Execution
+        run: |
+          while true; do
+            STATUS=$(docker-compose -f pipeline/airflow/docker-compose.yaml exec airflow-scheduler airflow dags state airflow $(date +%Y-%m-%d))
+            echo "Current DAG status: $STATUS"
+            if [ "$STATUS" = "success" ]; then
+              echo "DAG completed successfully"
+              break
+            elif [ "$STATUS" = "failed" ]; then
+              echo "DAG failed"
+              exit 1
+            fi
+            sleep 60  # Wait before checking the status again
+          done
+
+      # Step 8: Stop Airflow Services
+      - name: Stop Airflow Services
+        if: always()
+        run: docker-compose -f pipeline/airflow/docker-compose.yaml down --volumes --rmi all

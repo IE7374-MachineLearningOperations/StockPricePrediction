@@ -1,0 +1,60 @@
+name: Upload to GCP Bucket Workflow
+
+on:
+  push:
+    branches: [main, citest]
+  workflow_dispatch:
+
+jobs:
+  upload_to_gcp:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      # Step 3: Install gsutil
+      - name: Install gsutil
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-sdk
+
+      # Step 4: Authenticate with GCP
+      - name: Authenticate with GCP
+        uses: google-github-actions/auth@v0
+        with:
+          credentials_json: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+
+      # Step 5: Set GCP project
+      - name: Set GCP Project ID
+        run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+      # Step 6: Upload Artifacts to GCP Bucket
+      - name: Upload Artifacts
+        env:
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+        run: |
+          gsutil -m cp -r artifacts/* gs://${GCS_BUCKET_NAME}/artifacts/
+          gsutil -m cp -r pipeline/airflow/dags/* gs://${GCS_BUCKET_NAME}/airflow-dags/
+
+      # Step 7: Upload Data to GCP Bucket
+      - name: Upload Data Files
+        env:
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+        run: |
+          gsutil -m cp -r data/* gs://${GCS_BUCKET_NAME}/data/
+
+      # Step 8: Verify Upload
+      - name: Verify GCP Bucket Upload
+        env:
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+        run: |
+          echo "Listing files in GCS bucket:"
+          gsutil ls gs://${GCS_BUCKET_NAME}/
