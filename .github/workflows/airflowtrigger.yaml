@@ -53,11 +53,17 @@ jobs:
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/plugins/"
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/working_data/"
 
-      # Step 5: Initialize Airflow Database
-      - name: Initialize Airflow Database
+      # # Step 5: Initialize Airflow Database
+      # - name: Initialize Airflow Database
+      #   working-directory: ./pipeline/airflow
+      #   run: |
+      #     docker-compose exec -T airflow-scheduler airflow db init
+
+      # Step 5: Restart Airflow Scheduler
+      - name: Restart Airflow Scheduler
         working-directory: ./pipeline/airflow
         run: |
-          docker-compose exec -T airflow-scheduler airflow db init
+          docker-compose restart airflow-scheduler
 
       # Step 7: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
