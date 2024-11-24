@@ -50,7 +50,7 @@ jobs:
       - name: Wait for Airflow to initialize
         working-directory: ./pipeline/airflow
         run: |
-          sleep 180  # Wait 3 minutes for Airflow to fully initialize
+          sleep 600  # Wait 10 minutes for Airflow to fully initialize
 
       # Step 7: Initialize Airflow Database
       - name: Initialize Airflow Database
