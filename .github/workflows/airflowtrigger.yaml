@@ -30,21 +30,23 @@ jobs:
       # Step 3.5: Install Docker Compose
       - name: Install Docker Compose
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+          curl -SL https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+          # sudo apt-get update
+          # sudo apt-get install -y docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
       ## Step 3.1. Init db
       - name: Init Airflow DB
         working-directory: ./pipeline/airflow
         run: |
-          docker compose up airflow-init 
+          docker-compose up airflow-init 
 
       # Step 4: Start Airflow using Docker Compose
       - name: Start Airflow Services
         working-directory: ./pipeline/airflow
         run: |
           mkdir -p ./dags ./logs ./plugins ./working_data
-          docker compose up -d
+          docker-compose up -d
    
       - name: make env
         working-directory: ./pipeline/airflow
@@ -55,7 +57,7 @@ jobs:
       - name: Set permissions for Airflow logs
         working-directory: ./pipeline/airflow
         run: |
-          docker compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
+          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
       # Step 6: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
@@ -67,7 +69,7 @@ jobs:
       - name: Trigger Airflow DAG
         working-directory: ./pipeline/airflow
         run: |
-          docker compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
+          docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
       
       # Step 9: Monitor Airflow DAG Execution 
       - name: Monitor DAG Execution
