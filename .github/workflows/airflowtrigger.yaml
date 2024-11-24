@@ -39,7 +39,7 @@ jobs:
       - name: Start Airflow Services
         working-directory: ./pipeline/airflow
         run: |
-          mkdir -p ./dags ./logs ./plugins
+          mkdir -p ./dags ./logs ./plugins ./working_data
           docker-compose up -d
 
     
