@@ -2,7 +2,7 @@ name: Upload to GCP Bucket Workflow
 
 on:
   push:
-    branches: [main, citest]
+    branches: [vy]
   workflow_dispatch:
 
 jobs:
