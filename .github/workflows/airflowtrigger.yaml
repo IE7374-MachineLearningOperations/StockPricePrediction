@@ -50,7 +50,7 @@ jobs:
       - name: Install required packages in Airflow container
         # working-directory: ./pipeline/airflow
         run: |
-          docker-compose exec -T --user airflow airflow-scheduler pip install -r requirements.txt
+          docker-compose exec -T --user airflow2 airflow-scheduler pip install -r requirements.txt
      
       # Step 6: Initialize Airflow Database
       - name: Initialize Airflow Database
