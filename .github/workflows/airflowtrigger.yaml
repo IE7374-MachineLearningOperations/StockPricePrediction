@@ -47,7 +47,7 @@ jobs:
       # Step 6: Trigger DAG via Airflow CLI
       - name: Trigger Airflow DAG
         run: |
-          docker-compose -f pipeline/airflow/docker-compose.yaml exec airflow-scheduler airflow dags trigger airflow  # Replace 'airflow' with your actual DAG ID
+          docker-compose -f pipeline/airflow/docker-compose.yaml exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
 
       # Step 7: Monitor Airflow DAG Execution 
       - name: Monitor DAG Execution
