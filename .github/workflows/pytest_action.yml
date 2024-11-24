@@ -26,30 +26,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      Step 4: Run Py Tests
+      #Step 4: Run Py Tests
       - name: Run Tests
         run: |
           pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
 
-      # - name: Run tests and generate XML report
-      # run: |
-      #   pytest pipeline/airflow/tests --maxfail=1 --disable-warnings --junitxml=pytest-report.xml
-      # continue-on-error: false
+      - name: Notify on success
+        if: success()
+        run: echo "Tests passed successfully"
 
-      # - name: Upload test results
-      # if: always()
-      # uses: actions/upload-artifact@v2
-      # with:
-      #   name: test-results
-      #   path: pytest-report.xml
-
-    - name: Notify on success
-      if: success()
-      run: echo "Tests passed successfully"
-
-    - name: Notify on failure
-      if: failure()
-      run: echo "Tests failed"
+      - name: Notify on failure
+        if: failure()
+        run: echo "Tests failed"
 
       # # Step 5: Authenticate with GCP
       # - name: Authenticate to GCP
