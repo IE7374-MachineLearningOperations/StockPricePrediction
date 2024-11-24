@@ -44,13 +44,13 @@ jobs:
         working-directory: ./pipeline/airflow
         run: |
           mkdir -p ./dags ./logs ./plugins
-          docker-compose up -d
+          docker compose up -d
       
       # Step 5: Set permissions for Airflow logs inside the container
       - name: Set permissions for Airflow logs
         working-directory: ./pipeline/airflow
         run: |
-          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
+          docker compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
       # Step 6: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
@@ -62,14 +62,14 @@ jobs:
       - name: Trigger Airflow DAG
         working-directory: ./pipeline/airflow
         run: |
-          docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
+          docker compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
       
       # Step 9: Monitor Airflow DAG Execution 
       - name: Monitor DAG Execution
         working-directory: ./pipeline/airflow
         run: |
           while true; do
-            STATUS=$(docker-compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
+            STATUS=$(docker compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
             echo "Current DAG status: $STATUS"
             if [ "$STATUS" = "success" ]; then
               echo "DAG completed successfully"
@@ -85,4 +85,4 @@ jobs:
       - name: Stop Airflow Services
         if: always()
         working-directory: ./pipeline/airflow
-        run: docker-compose down --volumes --rmi all
+        run: docker compose down --volumes --rmi all
