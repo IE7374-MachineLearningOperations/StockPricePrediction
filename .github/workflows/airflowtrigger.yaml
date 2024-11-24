@@ -65,6 +65,12 @@ jobs:
         run: |
           sleep 400  # Wait a few minutes for Airflow to fully initialize
 
+      # Step 6.5: Initialize Airflow Database
+      - name: Initialize Airflow Database
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow db init
+
       # Step 8: Trigger DAG via Airflow CLI
       - name: Trigger Airflow DAG
         working-directory: ./pipeline/airflow
