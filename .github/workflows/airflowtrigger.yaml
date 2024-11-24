@@ -39,24 +39,24 @@ jobs:
         run: |
           mkdir -p ./dags ./logs ./plugins
           docker-compose up -d
+      
+      # Step 5: Set permissions for Airflow logs inside the container
+      - name: Set permissions for Airflow logs
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
-      # Step 5: Initialize Airflow Database
+      # Step 6: Initialize Airflow Database
       - name: Initialize Airflow Database
         working-directory: ./pipeline/airflow
         run: |
           docker-compose exec -T airflow-scheduler airflow db init
 
-      # Step 6: Wait for Airflow Services to be Up
+      # Step 7: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
         working-directory: ./pipeline/airflow
         run: |
           sleep 180  # Wait 3 minutes for Airflow to fully initialize
-
-      # Step 7: Set permissions for Airflow logs inside the container
-      - name: Set permissions for Airflow logs
-        working-directory: ./pipeline/airflow
-        run: |
-          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
       # Step 8: Trigger DAG via Airflow CLI
       - name: Trigger Airflow DAG
