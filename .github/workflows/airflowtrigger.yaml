@@ -48,7 +48,7 @@ jobs:
 
       ## step 5.1. install the required packages inside docker image
       - name: Install required packages in Airflow container
-        working-directory: ./pipeline/airflow
+        # working-directory: ./pipeline/airflow
         run: |
           docker-compose exec -T --user airflow airflow-scheduler pip install -r requirements.txt
      
