@@ -42,24 +42,23 @@ jobs:
       # Step 5: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
         run: |
-          sleep 180  # Wait 3 minutes for Airflow to fully initialize
-      
-      ## step 5.1: Set permissions for Airflow logs
+          sleep 300  # Wait 5 minutes for Airflow to fully initialize
+
+      # Step 6: Set permissions for Airflow logs inside the container
       - name: Set permissions for Airflow logs
         run: |
           docker-compose -f pipeline/airflow/docker-compose.yaml exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
-
-      # Step 6: Trigger DAG via Airflow CLI
+      # Step 7: Trigger DAG via Airflow CLI
       - name: Trigger Airflow DAG
         run: |
           docker-compose -f pipeline/airflow/docker-compose.yaml exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
-
-      # Step 7: Monitor Airflow DAG Execution 
+      
+      # Step 8: Monitor Airflow DAG Execution 
       - name: Monitor DAG Execution
         run: |
           while true; do
-            STATUS=$(docker-compose -f pipeline/airflow/docker-compose.yaml exec airflow-scheduler airflow dags state airflow $(date +%Y-%m-%d))
+            STATUS=$(docker-compose -f pipeline/airflow/docker-compose.yaml exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
             echo "Current DAG status: $STATUS"
             if [ "$STATUS" = "success" ]; then
               echo "DAG completed successfully"
@@ -71,7 +70,7 @@ jobs:
             sleep 60  # Wait before checking the status again
           done
 
-      # Step 8: Stop Airflow Services
+      # Step 9: Stop Airflow Services
       - name: Stop Airflow Services
         if: always()
         run: docker-compose -f pipeline/airflow/docker-compose.yaml down --volumes --rmi all
