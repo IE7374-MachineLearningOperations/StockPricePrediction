@@ -1,26 +1,27 @@
-name: build
-
+name: connect
 on:
-  push:
-    branches:
-    - 'vy'
-
+    pull_request:
+        branches:
+            - vy
+    push:
+        branches:
+            - vy
+permissions:
+    id-token: write
+    contents: read
+    actions: read
+    
 jobs:
-  build:
-    strategy:
-      matrix:
-        go-version: [1.18.x]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Keys before
-        run: |
-          cat ~/.ssh/authorized_keys || :
-      # - uses: alexellis/setup-sshd-actor@master
-      - uses: IE7374-MachineLearningOperations/StockPricePrediction@vy
-      - name: Check keys after
-        run: |
-          cat ~/.ssh/authorized_keys
-      - name: Sleep a bit
-        run: |
-          sleep 100
+    connect:
+        name: connect
+        runs-on: ubuntu-latest
+        steps:
+            - name: Setup SSH server for Actor
+                uses: alexellis/setup-sshd-actorMmaster
+            - name: Connect to the actuated SSH gateway
+                uses: alexellis/actuated-ssh-gateway-actionfmaster
+                with:
+                    gatewayaddr: ${{ secrets.SSH_GATEWIAY_IP }}
+                    secure: true
+                - name: Setup a blocking tmux session
+                uses: alexellis/block-with-tmux-actiongmaster
