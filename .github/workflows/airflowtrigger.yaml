@@ -46,23 +46,17 @@ jobs:
         run: |
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
-      ## step 5.1. install the required packages inside docker image
-      - name: Install required packages in Airflow container
-        # working-directory: ./pipeline/airflow
-        run: |
-          docker-compose exec -T --user airflow2 airflow-scheduler pip install -r requirements.txt
-     
-      # Step 6: Initialize Airflow Database
-      - name: Initialize Airflow Database
-        working-directory: ./pipeline/airflow
-        run: |
-          docker-compose exec -T airflow-scheduler airflow db init
-
-      # Step 7: Wait for Airflow Services to be Up
+      # Step 6: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
         working-directory: ./pipeline/airflow
         run: |
           sleep 180  # Wait 3 minutes for Airflow to fully initialize
+
+      # Step 7: Initialize Airflow Database
+      - name: Initialize Airflow Database
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow db init
 
       # Step 8: Trigger DAG via Airflow CLI
       - name: Trigger Airflow DAG
