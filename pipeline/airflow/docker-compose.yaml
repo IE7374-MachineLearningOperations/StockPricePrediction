@@ -115,7 +115,10 @@ services:
 
   airflow-webserver:
     <<: *airflow-common
-    command: webserver
+    # command: webserver
+    ## TODO
+    command: >
+      bash -c "pip install ${_PIP_ADDITIONAL_REQUIREMENTS} && airflow webserver"
     ports:
       - 8080:8080
     healthcheck:
@@ -131,7 +134,10 @@ services:
 
   airflow-scheduler:
     <<: *airflow-common
-    command: scheduler
+    # command: scheduler
+    ## TODO
+    command: >
+      bash -c "pip install ${_PIP_ADDITIONAL_REQUIREMENTS} && airflow scheduler"
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
       interval: 10s
