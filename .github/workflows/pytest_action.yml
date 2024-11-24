@@ -1,13 +1,12 @@
-name: Model Training
+name: Testing with Pytest
 
 on:
   push:
     branches:
-      - main
-      - citest  
+      - vy 
 
 jobs:
-  train_model:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -27,22 +26,42 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step 4: Run Py Tests
+      Step 4: Run Py Tests
       - name: Run Tests
         run: |
           pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
 
-      # Step 5: Authenticate with GCP
-      - name: Authenticate to GCP
-        env:
-          GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-          GCP_REGION: ${{ secrets.GOOGLE_CLOUD_REGION }}
-          GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        run: |
-          echo "${GCP_SERVICE_ACCOUNT_KEY}" | base64 --decode > ${HOME}/gcp-key.json
-          gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
-          gcloud config set project ${GCP_PROJECT_ID}
-          gcloud config set compute/region ${GCP_REGION}
+      # - name: Run tests and generate XML report
+      # run: |
+      #   pytest pipeline/airflow/tests --maxfail=1 --disable-warnings --junitxml=pytest-report.xml
+      # continue-on-error: false
+
+      # - name: Upload test results
+      # if: always()
+      # uses: actions/upload-artifact@v2
+      # with:
+      #   name: test-results
+      #   path: pytest-report.xml
+
+    - name: Notify on success
+      if: success()
+      run: echo "Tests passed successfully"
+
+    - name: Notify on failure
+      if: failure()
+      run: echo "Tests failed"
+
+      # # Step 5: Authenticate with GCP
+      # - name: Authenticate to GCP
+      #   env:
+      #     GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      #     GCP_REGION: ${{ secrets.GOOGLE_CLOUD_REGION }}
+      #     GCP_SERVICE_ACCOUNT_KEY: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+      #   run: |
+      #     echo "${GCP_SERVICE_ACCOUNT_KEY}" | base64 --decode > ${HOME}/gcp-key.json
+      #     gcloud auth activate-service-account --key-file=${HOME}/gcp-key.json
+      #     gcloud config set project ${GCP_PROJECT_ID}
+      #     gcloud config set compute/region ${GCP_REGION}
 
       # # Step 6: Conditional Model Training
       # - name: Trigger Model Training
