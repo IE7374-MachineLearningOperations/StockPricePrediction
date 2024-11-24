@@ -51,7 +51,7 @@ x-airflow-common:
   # build: .
   environment:
     &airflow-common-env
-    AIRFLOW_PROJ_DIR: pipeline/airflow  ## TODO
+    AIRFLOW_PROJ_DIR: ./pipeline/airflow  ## TODO
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     # For backward compatibility, with Airflow <2.3
