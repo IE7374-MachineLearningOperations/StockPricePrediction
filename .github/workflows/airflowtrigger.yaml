@@ -33,23 +33,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y docker-compose
 
-      # Step 4: Change directory to ./pipeline/airflow
-      - name: Change directory to ./pipeline/airflow
-        run: |
-          cd ./pipeline/airflow
-
-      # Step 5: Start Airflow using Docker Compose
+      # Step 4: Start Airflow using Docker Compose
       - name: Start Airflow Services
         working-directory: ./pipeline/airflow
         run: |
           mkdir -p ./dags ./logs ./plugins
           docker-compose up -d
 
+      # Step 5: Initialize Airflow Database
+      - name: Initialize Airflow Database
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow db init
+
       # Step 6: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
         working-directory: ./pipeline/airflow
         run: |
-          sleep 300  # Wait 5 minutes for Airflow to fully initialize
+          sleep 180  # Wait 3 minutes for Airflow to fully initialize
 
       # Step 7: Set permissions for Airflow logs inside the container
       - name: Set permissions for Airflow logs
