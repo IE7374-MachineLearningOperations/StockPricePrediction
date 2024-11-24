@@ -46,6 +46,12 @@ jobs:
         run: |
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
+      ## step 5.1. install the required packages inside docker image
+      - name: Install required packages in Airflow container
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler pip install -r requirements.txt
+     
       # Step 6: Initialize Airflow Database
       - name: Initialize Airflow Database
         working-directory: ./pipeline/airflow
