@@ -30,59 +30,55 @@ jobs:
       # Step 3.5: Install Docker Compose
       - name: Install Docker Compose
         run: |
-          curl -SL https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-          # sudo apt-get update
-          # sudo apt-get install -y docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-
-      ## Step 3.1. Init db
-      - name: Init Airflow DB
-        working-directory: ./pipeline/airflow
-        run: |
-          docker-compose up airflow-init 
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       # Step 4: Start Airflow using Docker Compose
       - name: Start Airflow Services
         working-directory: ./pipeline/airflow
         run: |
-          mkdir -p ./dags ./logs ./plugins ./working_data
+          mkdir -p ./dags ./logs ./plugins
           docker-compose up -d
-   
-      - name: make env
+
+      # Step 5: Initialize Airflow Database
+      - name: Initialize Airflow Database
         working-directory: ./pipeline/airflow
         run: |
-          echo -e "AIRFLOW_UID=$(id -u)" > .env
-      
-      # Step 5: Set permissions for Airflow logs inside the container
+          docker-compose exec -T airflow-scheduler airflow db init
+
+      # Step 6: Set permissions for Airflow logs inside the container
       - name: Set permissions for Airflow logs
         working-directory: ./pipeline/airflow
         run: |
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
+          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/dags/"
+          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/plugins/"
+          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/working_data/"
 
-      # Step 6: Wait for Airflow Services to be Up
+      # Step 7: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
         working-directory: ./pipeline/airflow
         run: |
           sleep 400  # Wait a few minutes for Airflow to fully initialize
 
-      # # Step 6.5: Initialize Airflow Database
-      # - name: Initialize Airflow Database
-      #   working-directory: ./pipeline/airflow
-      #   run: |
-      #     docker-compose exec -T airflow-scheduler airflow db init
+      # Step 8: List all DAGs
+      - name: List all DAGs
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow dags list
 
-      # Step 8: Trigger DAG via Airflow CLI
+      # Step 9: Trigger DAG via Airflow CLI
       - name: Trigger Airflow DAG
         working-directory: ./pipeline/airflow
         run: |
           docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
       
-      # Step 9: Monitor Airflow DAG Execution 
+      # Step 10: Monitor Airflow DAG Execution 
       - name: Monitor DAG Execution
         working-directory: ./pipeline/airflow
         run: |
           while true; do
-            STATUS=$(docker compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
+            STATUS=$(docker-compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
             echo "Current DAG status: $STATUS"
             if [ "$STATUS" = "success" ]; then
               echo "DAG completed successfully"
@@ -94,8 +90,8 @@ jobs:
             sleep 60  # Wait before checking the status again
           done
 
-      # Step 10: Stop Airflow Services
+      # Step 11: Stop Airflow Services
       - name: Stop Airflow Services
         if: always()
         working-directory: ./pipeline/airflow
-        run: docker compose down --volumes --rmi all
+        run: docker-compose down --volumes --rmi all
