@@ -73,12 +73,12 @@ x-airflow-common:
     AIRFLOW__SMTP__SMTP_RETRY_LIMIT: 5
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:- pandas scikit-learn kneed matplotlib seaborn numpy yfinance fredapi gcsfs pipeline torch xgboost shap fairlearn omegaconf wandb}
   volumes:
-    - ./pipeline/airflow/dags:/opt/airflow/dags  # Correctly mount the dags directory
-    - ./pipeline/airflow/logs:/opt/airflow/logs
-    - ./pipeline/airflow/plugins:/opt/airflow/plugins
-    # - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
-    # - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
-    # - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    # - ./pipeline/airflow/dags:/opt/airflow/dags  # Correctly mount the dags directory
+    # - ./pipeline/airflow/logs:/opt/airflow/logs
+    # - ./pipeline/airflow/plugins:/opt/airflow/plugins
+    - ${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
+    - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
+    - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -254,6 +254,7 @@ services:
       _PIP_ADDITIONAL_REQUIREMENTS: ''
     user: "0:0"
     volumes:
+      # - ./pipeline/airflow/working_data:/opt/airflow/working_data
       - ${AIRFLOW_PROJ_DIR:-.}/working_data:/opt/airflow/working_data
 
   airflow-cli:
