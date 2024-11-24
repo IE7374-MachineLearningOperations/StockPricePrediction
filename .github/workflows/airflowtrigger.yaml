@@ -47,7 +47,8 @@ jobs:
       ## step 5.1: Set permissions for Airflow logs
       - name: Set permissions for Airflow logs
         run: |
-          docker-compose -f pipeline/airflow/docker-compose.yaml exec -T airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
+          docker-compose -f pipeline/airflow/docker-compose.yaml exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
+
 
       # Step 6: Trigger DAG via Airflow CLI
       - name: Trigger Airflow DAG
