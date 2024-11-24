@@ -1,12 +1,12 @@
-ame: connect
+name: connect
 
 on:
   pull_request:
     branches:
-      - '*'
+      - vy
   push:
     branches:
-      - master
+      - vy
       
   workflow_dispatch:
 
