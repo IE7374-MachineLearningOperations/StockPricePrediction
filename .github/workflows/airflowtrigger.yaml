@@ -39,7 +39,7 @@ jobs:
       - name: Start Airflow Services
         working-directory: ./pipeline/airflow
         run: |
-          mkdir -p ./dags ./logs ./plugins ./working_data
+          # mkdir -p ./dags ./logs ./plugins ./working_data
           docker-compose up -d
 
     
@@ -51,7 +51,7 @@ jobs:
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/dags/"
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/plugins/"
-          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/working_data/"
+          # docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/working_data/"
 
       # # Step 5: Initialize Airflow Database
       # - name: Initialize Airflow Database
