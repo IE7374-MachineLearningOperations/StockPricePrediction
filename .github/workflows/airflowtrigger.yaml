@@ -42,7 +42,7 @@ jobs:
       # Step 5: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
         run: |
-          sleep 300  # Wait 5 minutes for Airflow to fully initialize
+          sleep 600  # Wait 5 minutes for Airflow to fully initialize
 
       # Step 6: Set permissions for Airflow logs inside the container
       - name: Set permissions for Airflow logs
