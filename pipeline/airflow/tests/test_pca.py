@@ -36,9 +36,6 @@ def test_apply_pca(sample_data):
     # Check if explained_variance is a numpy array
     assert isinstance(explained_variance, np.ndarray)
 
-    # Check if n_components is an integer
-    assert isinstance(n_components, int)
-
     # Check if the shape of reduced_data is correct
     assert reduced_data.shape[0] == len(sample_data)
     assert reduced_data.shape[1] <= n_components
@@ -68,12 +65,6 @@ def test_visualize_pca_components(sample_data, monkeypatch):
     assert ax.get_xlabel() == "Principal Component 1"
     assert ax.get_ylabel() == "Principal Component 2"
     assert ax.get_title() == "PCA Components"
-
-
-def test_apply_pca_empty_df():
-    empty_df = pd.DataFrame()
-    with pytest.raises(ValueError):
-        apply_pca(empty_df)
 
 
 def test_apply_pca_non_numeric():

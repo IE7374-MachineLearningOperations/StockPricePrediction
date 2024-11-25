@@ -69,7 +69,7 @@ def apply_pca(data: pd.DataFrame, variance_threshold=0.95):
     logging.info(f"PCA completed. Number of components: {n_components}")
     logging.debug(f"Explained variance by component: {explained_variance}")
 
-    return reduced_data
+    return reduced_data, explained_variance, n_components
 
 
 def visualize_pca_components(data: pd.DataFrame, variance_threshold=0.95):
@@ -81,7 +81,7 @@ def visualize_pca_components(data: pd.DataFrame, variance_threshold=0.95):
     """
 
     logging.info("Visualizing PCA components")
-    reduced_data = apply_pca(data, variance_threshold)
+    reduced_data, _, _ = apply_pca(data, variance_threshold)
 
     # Plot PCA components
     plt.figure(figsize=(10, 8))

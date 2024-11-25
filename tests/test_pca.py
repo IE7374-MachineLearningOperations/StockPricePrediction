@@ -29,7 +29,7 @@ def sample_data():
 
 def test_apply_pca(sample_data):
     # Get the reduced data from apply_pca
-    reduced_data = apply_pca(sample_data, variance_threshold=0.95)
+    reduced_data, _, _ = apply_pca(sample_data, variance_threshold=0.95)
 
     # Check if reduced_data is a numpy array
     assert isinstance(reduced_data, np.ndarray)

@@ -4,7 +4,6 @@ import sys
 import os
 import logging
 import joblib
-import gcsfs
 from sklearn.model_selection import train_test_split, TimeSeriesSplit, GridSearchCV
 from sklearn.linear_model import Ridge, Lasso, ElasticNet
 from sklearn.metrics import mean_squared_error, mean_absolute_error
@@ -43,9 +42,12 @@ dir = os.path.dirname(dir)
 dir = os.path.dirname(dir)
 path = os.path.join(dir, "service_key_gcs.json")
 
-fs = gcsfs.GCSFileSystem()
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path
-storage_client = storage.Client()
+if os.path.exists(path):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path
+    storage_client = storage.Client()
+else:
+    storage_client = None
+    logging.warning("------- Service key not found!")
 
 
 # Define the data preparation function

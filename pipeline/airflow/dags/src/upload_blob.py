@@ -31,8 +31,12 @@ dir = os.path.dirname(abs_path)
 dir = os.path.dirname(dir)
 path = os.path.join(dir, "service_key_gcs.json")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path
-storage_client = storage.Client()
+if os.path.exists(path):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path
+    storage_client = storage.Client()
+else:
+    storage_client = None
+    logging.warning("------- Service key not found!")
 
 """
 Upload a file to the bucket
@@ -52,7 +56,7 @@ def upload_blob(data, gcs_file_path: str = None):
     upload_from_filename()
     """
     if gcs_file_path is None:
-        gcs_file_path = "gs://stock_price_prediction_dataset/Data/pipeline/airflow/dags/data/final_dataset_for_modeling_2.csv"
+        gcs_file_path = "gs://stock_price_prediction_dataset/Data/pipeline/airflow/dags/data/final_dataset_for_modeling.csv"
 
     storage_client = storage.Client()
     bucket = storage_client.bucket("stock_price_prediction_dataset")

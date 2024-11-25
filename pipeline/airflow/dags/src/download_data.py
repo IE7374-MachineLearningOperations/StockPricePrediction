@@ -21,8 +21,12 @@ dir = os.path.dirname(abs_path)
 dir = os.path.dirname(dir)
 path = os.path.join(dir, "service_key_gcs.json")
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path
-storage_client = storage.Client()
+if os.path.exists(path):
+    os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = path
+    storage_client = storage.Client()
+else:
+    storage_client = None
+    logging.warning("------- Service key not found!")
 
 
 def read_file(blob_name: str, bucket_name="stock_price_prediction_dataset") -> pd.DataFrame:
@@ -57,13 +61,17 @@ def get_yfinance_data(ticker_symbol: str) -> pd.DataFrame:
 def get_fama_french_data() -> pd.DataFrame:
     bucket_name = "stock_price_prediction_dataset"
     blob_name = "Data/pipeline/airflow/dags/data/fama_french.csv"
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
+    if storage_client is not None:  ## connect to GCS
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
 
-    with blob.open("r") as f:
-        ff = f.read()
+        with blob.open("r") as f:
+            ff = f.read()
 
-    ff = pd.read_csv(io.StringIO(ff), sep=",")
+        ff = pd.read_csv(io.StringIO(ff), sep=",")
+    else:  ## local
+        ff = pd.read_csv("pipeline/airflow/dags/data/fama_french.csv")
+
     ff["Date"] = pd.to_datetime(ff["Date"], format="%Y%m%d")
     all_cols = ff.columns
     new_cols = ["date"] + list(all_cols[1:])
@@ -78,12 +86,17 @@ def get_fama_french_data() -> pd.DataFrame:
 def get_ads_index_data() -> pd.DataFrame:
     bucket_name = "stock_price_prediction_dataset"
     blob_name = "Data/pipeline/airflow/dags/data/ADS_index.csv"
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(blob_name)
 
-    with blob.open("r") as f:
-        ads = f.read()
-    ads = pd.read_csv(io.StringIO(ads), sep=",")
+    if storage_client is not None:  ## connect to GCS
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+
+        with blob.open("r") as f:
+            ads = f.read()
+        ads = pd.read_csv(io.StringIO(ads), sep=",")
+    else:  # local
+        ads = pd.read_csv("pipeline/airflow/dags/data/ADS_index.csv")
+
     ads.columns = ["date", "ads_index"]
     ads["date"] = ads["date"].str.replace(":", "-")
     ads["date"] = pd.to_datetime(ads["date"], format="%Y-%m-%d")
@@ -111,10 +124,43 @@ def get_sp500_data() -> pd.DataFrame:
     return sp500
 
 
-def get_fred_data() -> pd.DataFrame:
+def get_fred_data():
+    if storage_client is not None:  ## connect to GCS
+        fred = get_fred_data_GCS()
+    else:  ## local
+        fred = get_fred_data_local()
+    return fred
+
+
+def get_fred_data_local() -> pd.DataFrame:
+    ## read all files in the directory
+    all_files = glob.glob("pipeline/airflow/dags/data/FRED_Variables/*.csv")
+    fred = pd.read_csv(all_files[0])
+    fred["DATE"] = pd.to_datetime(fred["DATE"], format="%Y-%m-%d")
+
+    for file in all_files[1:]:
+        df = pd.read_csv(file)
+        df["DATE"] = pd.to_datetime(df["DATE"], format="%Y-%m-%d")
+        fred = pd.merge(fred, df, on="DATE", how="outer")
+    fred = fred.sort_values("DATE")
+    fred["DATE"] = fred["DATE"].dt.strftime("%Y-%m-%d")
+
+    all_cols = fred.columns
+    new_cols = ["date"] + list(all_cols[1:])
+    fred.columns = new_cols
+
+    if fred.empty:
+        logging.error("FRED data was NOT loaded")
+    logging.info("FRED data was loaded successfully")
+
+    return fred
+
+
+def get_fred_data_GCS() -> pd.DataFrame:
     bucket_name = "stock_price_prediction_dataset"
     blob_name = "Data/pipeline/airflow/dags/data/FRED_Variables"
     # Note: Client.list_blobs requires at least package version 1.17.0.
+
     blobs = storage_client.list_blobs(bucket_name, prefix=blob_name)
     ## convert to list
     blobs = list(blobs)
@@ -173,10 +219,10 @@ def merge_data(ticker_symbol: str) -> pd.DataFrame:
 
     gcs_file_path = "Data/pipeline/airflow/dags/data/merged_original_dataset.csv"
 
-    storage_client = storage.Client()
-    bucket = storage_client.bucket("stock_price_prediction_dataset")
-    blob = bucket.blob(gcs_file_path)
-    blob.upload_from_string(res.to_csv(index=False), "text/csv")
+    if storage_client is not None:
+        bucket = storage_client.bucket("stock_price_prediction_dataset")
+        blob = bucket.blob(gcs_file_path)
+        blob.upload_from_string(res.to_csv(index=False), "text/csv")
 
     if res.empty:
         logging.error("Data was NOT merged")
