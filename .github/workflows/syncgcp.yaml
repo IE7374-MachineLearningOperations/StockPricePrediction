@@ -54,12 +54,12 @@ jobs:
           gsutil -m cp -r artifacts/* gs://${GCS_BUCKET_NAME}/artifacts/
           gsutil -m cp -r pipeline/airflow/dags/* gs://${GCS_BUCKET_NAME}/airflow-dags/
 
-      # Step 9: Upload Data to GCP Bucket
-      - name: Upload Data Files
+      # Step 9: Upload All Files to GCP Bucket with Directory Structure
+      - name: Upload All Files to GCP Bucket
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
-          gsutil -m cp -r data/* gs://${GCS_BUCKET_NAME}/data/
+          gsutil -m cp -r * gs://${GCS_BUCKET_NAME}/
 
       # Step 10: Verify Upload
       - name: Verify GCP Bucket Upload
