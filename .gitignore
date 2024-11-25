@@ -302,7 +302,11 @@ pipeline/airflow/dags/service_key_gcs.json
 /striped-graph-440017-d7-79f99f8253bc.json
 miniconda3
 GCP/striped-graph-440017-d7-79f99f8253bc.json
+<<<<<<< HEAD
 
 **/*.pkl
+=======
+*.pkl
+>>>>>>> 20911f9b0808c7c1a684fe6e2aa7d0e1466c93b1
 *.h5
 models/*.pkl
