@@ -26,23 +26,27 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-cloud-cli
 
-      # Step 4: Write GCP Service Account Key to File
-      - name: Write GCP Service Account Key
+      # Step 4: Decode and Write GCP Service Account Key to File
+      - name: Decode and Write GCP Service Account Key
         run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcp-key.json
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > /tmp/gcp-key.json
         shell: bash
 
-      # Step 5: Authenticate with GCP using the Temporary File
+      # Step 5: Verify Service Account Key File
+      - name: Verify Service Account Key File
+        run: cat /tmp/gcp-key.json
+
+      # Step 6: Authenticate with GCP using the Temporary File
       - name: Authenticate with GCP
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
         run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
-      # Step 6: Set GCP Project ID
+      # Step 7: Set GCP Project ID
       - name: Set GCP Project ID
         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
-      # Step 7: Upload Artifacts to GCP Bucket
+      # Step 8: Upload Artifacts to GCP Bucket
       - name: Upload Artifacts
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
@@ -50,14 +54,14 @@ jobs:
           gsutil -m cp -r artifacts/* gs://${GCS_BUCKET_NAME}/artifacts/
           gsutil -m cp -r pipeline/airflow/dags/* gs://${GCS_BUCKET_NAME}/airflow-dags/
 
-      # Step 8: Upload Data to GCP Bucket
+      # Step 9: Upload Data to GCP Bucket
       - name: Upload Data Files
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
           gsutil -m cp -r data/* gs://${GCS_BUCKET_NAME}/data/
 
-      # Step 9: Verify Upload
+      # Step 10: Verify Upload
       - name: Verify GCP Bucket Upload
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
