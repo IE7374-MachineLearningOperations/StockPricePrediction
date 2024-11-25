@@ -36,7 +36,13 @@ jobs:
       - name: Set GCP Project ID
         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
-      # Step 6: Upload Artifacts to GCP Bucket
+      # Step 6: Configure gsutil Authentication
+      - name: Configure gsutil Authentication
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+
+      # Step 7: Upload Artifacts to GCP Bucket
       - name: Upload Artifacts
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
@@ -44,14 +50,14 @@ jobs:
           gsutil -m cp -r artifacts/* gs://${GCS_BUCKET_NAME}/artifacts/
           gsutil -m cp -r pipeline/airflow/dags/* gs://${GCS_BUCKET_NAME}/airflow-dags/
 
-      # Step 7: Upload Data to GCP Bucket
+      # Step 8: Upload Data to GCP Bucket
       - name: Upload Data Files
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
           gsutil -m cp -r data/* gs://${GCS_BUCKET_NAME}/data/
 
-      # Step 8: Verify Upload
+      # Step 9: Verify Upload
       - name: Verify GCP Bucket Upload
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
