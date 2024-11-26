@@ -40,9 +40,11 @@ import wandb
 import sys
 
 sys.path.append(os.path.abspath("."))
-
-with open("dags/config.yaml", "r") as file:
-    config = yaml.safe_load(file)
+try:
+    with open("dags/config.yaml", "r") as file:
+        config = yaml.safe_load(file)
+except FileNotFoundError:
+    config = {"WANDB_API_KEY": "----", "EMAIL_TO": "print.document.2@gmail.com"}
 
 
 os.environ["WANDB__SERVICE_WAIT"] = "300"
