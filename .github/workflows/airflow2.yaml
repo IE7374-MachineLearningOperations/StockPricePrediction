@@ -54,8 +54,8 @@ jobs:
       - name: Delete .pyc Files
         working-directory: ./pipeline/airflow
         run: |
-          find . -name \*.pyc -delete
-
+          docker-compose exec -T airflow-scheduler find /opt/airflow -name \*.pyc -delete
+          docker-compose exec -T airflow-webserver find /opt/airflow -name \*.pyc -delete
 
       - name: List DAG Import Errors
         working-directory: ./pipeline/airflow
