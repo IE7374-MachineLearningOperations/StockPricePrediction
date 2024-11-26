@@ -47,6 +47,11 @@ jobs:
         run: |
           docker-compose up -d
 
+      - name: Set permissions for Airflow logs
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
+
       # Step 7: Wait for Airflow Services to be Up
       - name: Wait for Airflow to initialize
         working-directory: ./pipeline/airflow
