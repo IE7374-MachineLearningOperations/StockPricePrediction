@@ -35,6 +35,12 @@ jobs:
           # sudo apt-get install -y docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
 
+      ## init docker compose up airflow-init
+      - name: Start Airflow Services
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose up airflow-init
+
       # Step 4: Start Airflow using Docker Compose
       - name: Start Airflow Services
         working-directory: ./pipeline/airflow
@@ -52,11 +58,6 @@ jobs:
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/plugins/"
           # docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/working_data/"
 
-      # Step 5: Initialize Airflow Database
-      - name: Initialize Airflow Database
-        working-directory: ./pipeline/airflow
-        run: |
-          docker-compose up airflow-init
 
       # # Step 5: Restart Airflow Scheduler
       # - name: Restart Airflow Scheduler
@@ -68,10 +69,9 @@ jobs:
       - name: Wait for Airflow to initialize
         working-directory: ./pipeline/airflow
         run: |
-          sleep 400  # Wait a few minutes for Airflow to fully initialize
-
-      # Step 8: List all DAGs
-      - name: List all DAGs
+          sleep 200  # Wait a few minutes for Airflow to fully initialize
+      # show docker-compose exec -T airflow-scheduler airflow dags list
+      - name: Show Airflow DAGs
         working-directory: ./pipeline/airflow
         run: |
           docker-compose exec -T airflow-scheduler airflow dags list
