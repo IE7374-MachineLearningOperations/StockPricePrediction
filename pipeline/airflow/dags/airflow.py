@@ -36,7 +36,8 @@ from src.models.model_bias_detection import detect_bias
 
 load_dotenv()
 import os
-import wandb
+
+# import wandb ## TODO
 import sys
 
 sys.path.append(os.path.abspath("."))
@@ -48,7 +49,7 @@ except FileNotFoundError:
 
 
 os.environ["WANDB__SERVICE_WAIT"] = "300"
-wandb.login(key=config["WANDB_API_KEY"])
+# wandb.login(key=config["WANDB_API_KEY"])  ## TODO
 
 
 # Define function to notify failure or sucess via an email

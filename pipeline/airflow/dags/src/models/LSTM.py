@@ -12,7 +12,8 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, mean_absolute_error
-import wandb
+
+# import wandb  ## TODO
 from datetime import datetime
 
 from sklearn.preprocessing import MinMaxScaler
@@ -97,7 +98,7 @@ def train_and_evaluate_lstm(
 ):
     cur_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     config = {"timesteps": timesteps, "hidden_size": hidden_size, "dropout_rate": dropout_rate}
-    logger = wandb.init(project="stock-price-prediction", name=f"experiment_{cur_time}", config=config)
+    # logger = wandb.init(project="stock-price-prediction", name=f"experiment_{cur_time}", config=config) ## TODO
 
     X_train, X_test, y_train, y_test, scaler = preprocess_data(df, timesteps)
 
@@ -125,7 +126,7 @@ def train_and_evaluate_lstm(
             loss.backward()
             optimizer.step()
 
-            wandb.log({"epoch": epoch, "bid": i, "loss": loss.item()})
+            # wandb.log({"epoch": epoch, "bid": i, "loss": loss.item()}) ## TODO
 
     # Evaluation
     model.eval()
@@ -142,14 +143,14 @@ def train_and_evaluate_lstm(
     mape = np.mean(np.abs((y_test_rescaled - y_pred_rescaled) / y_test_rescaled)) * 100
 
     ## logging the results
-    logger.log({"RMSE": rmse, "MAE": mae, "MAPE": mape})
+    # logger.log({"RMSE": rmse, "MAE": mae, "MAPE": mape})  ## TODO
 
     logging.info("Results....")
     logging.info("RMSE - LSTM: %f", rmse)
     logging.info("MAE - LSTM: %f", mae)
     logging.info("MAPE - LSTM: %f", mape)
 
-    wandb.finish()
+    # wandb.finish()  ## TODO
 
     return model, rmse
 
