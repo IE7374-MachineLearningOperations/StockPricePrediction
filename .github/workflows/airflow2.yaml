@@ -39,6 +39,13 @@ jobs:
         run: |
           docker-compose up -d
 
+        # Step 6: Install Python packages inside Docker containers
+      - name: Install Python Packages
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler pip install -r /opt/airflow/dags/requirements.txt
+          docker-compose exec -T airflow-webserver pip install -r /opt/airflow/dags/requirements.txt
+
       # Step 6: Set permissions for Airflow logs inside the container
       - name: Set permissions for Airflow logs
         working-directory: ./pipeline/airflow
