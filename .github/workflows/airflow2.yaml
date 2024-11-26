@@ -49,6 +49,13 @@ jobs:
         working-directory: ./pipeline/airflow
         run: |
           timeout 300 bash -c 'until docker-compose exec -T airflow-webserver curl -f http://localhost:8080/health; do sleep 10; done'
+  
+      # Step 9: Delete .pyc Files
+      - name: Delete .pyc Files
+        working-directory: ./pipeline/airflow
+        run: |
+          find . -name \*.pyc -delete
+
 
       - name: List DAG Import Errors
         working-directory: ./pipeline/airflow
