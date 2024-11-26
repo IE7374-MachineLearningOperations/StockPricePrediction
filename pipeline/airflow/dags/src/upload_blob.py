@@ -3,6 +3,7 @@ from google.cloud import storage
 import pandas as pd
 import gcsfs
 import sys
+import logging
 
 sys.path.append(os.path.abspath("pipeline/airflow"))
 sys.path.append(os.path.abspath("."))
