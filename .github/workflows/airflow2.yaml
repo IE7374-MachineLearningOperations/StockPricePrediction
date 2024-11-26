@@ -1,0 +1,97 @@
+name: Airflow Pipeline Automation
+
+on:
+  push:
+    branches:
+      - vy
+  pull_request:
+    branches:
+      - vy
+
+jobs:
+  setup-airflow:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.7'
+
+      # Step 3: Install dependencies
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install apache-airflow==2.6.3 apache-airflow-providers-docker
+
+      # Step 4: Install Docker Compose
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
+      # Step 5: Initialize Airflow Database
+      - name: Initialize Airflow Database
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose up airflow-init
+
+      # Step 6: Start Airflow using Docker Compose
+      - name: Start Airflow with Docker Compose
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose up -d
+
+      # Step 7: Wait for Airflow Services to be Up
+      - name: Wait for Airflow to initialize
+        working-directory: ./pipeline/airflow
+        run: |
+          sleep 300  # Wait 5 minutes for Airflow to fully initialize
+
+      # Step 8: Check for DAG Import Errors
+      - name: List DAG Import Errors
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow dags list-import-errors
+
+      # Step 9: List all DAGs
+      - name: List all DAGs
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow dags list
+
+      # Step 10: Trigger the DAG
+      - name: Trigger Airflow DAG
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow dags trigger \
+            -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
+
+      # Step 11: Verify DAG Run Status
+      - name: Verify DAG Run Status
+        working-directory: ./pipeline/airflow
+        run: |
+          while true; do
+            STATUS=$(docker-compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
+            echo "Current DAG status: $STATUS"
+            if [ "$STATUS" = "success" ]; then
+              echo "DAG completed successfully"
+              break
+            elif [ "$STATUS" = "failed" ]; then
+              echo "DAG failed"
+              exit 1
+            fi
+            sleep 60  # Wait before checking the status again
+          done
+
+      # Step 12: Tear down Docker Compose (optional)
+      - name: Stop Airflow Services
+        if: always()
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose down
