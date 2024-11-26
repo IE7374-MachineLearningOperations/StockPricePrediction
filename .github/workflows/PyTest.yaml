@@ -69,4 +69,6 @@ jobs:
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
-          gsutil -m cp -r htmlcov/* gs://${GCS_BUCKET_NAME}/coverage-reports/
+           CURRENT_DATE=$(date +"%Y-%m-%d")
+           zip -r coverage-report.zip htmlcov/
+           gsutil -m cp coverage-report.zip gs://${GCS_BUCKET_NAME}/Pytest-reports/${CURRENT_DATE}/coverage-report.zip
