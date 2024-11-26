@@ -44,7 +44,7 @@ jobs:
         working-directory: ./pipeline/airflow
         run: |
           docker-compose exec -T airflow-scheduler python3 -m pip install -r /opt/airflow/dags/requirements.txt
-          docker-compose exec -T airflow-webserver python3 -m pip install -r /opt/airflow/dags/requirements.txt
+          # docker-compose exec -T airflow-webserver python3 -m pip install -r /opt/airflow/dags/requirements.txt
 
 
       # Step 6: Set permissions for Airflow logs inside the container
