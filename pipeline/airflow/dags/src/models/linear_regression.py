@@ -35,7 +35,6 @@ from dags.src.technical_indicators import add_technical_indicators
 from dags.src.scaler import scaler
 from dags.src.upload_blob import upload_blob
 from dags.src.models.model_utils import save_and_upload_model, upload_artifact
-from dags.src.wandb_log import *
 
 
 # Define the data preparation function

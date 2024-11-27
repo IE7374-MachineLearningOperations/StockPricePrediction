@@ -8,8 +8,8 @@
 │   │   ├── Feature Importance for Lasso.png
 │   │   ├── Feature Importance for Ridge on Test Set.png
 │   │   ├── Feature Importance for Ridge.png
-│   │   ├── Linear Regression - Hyperparameter Sensitivity: model__alpha.png
-│   │   ├── Linear Regression - Hyperparameter Sensitivity: model__l1_ratio.png
+│   │   ├── Linear Regression - Hyperparameter Sensitivity_ model__alpha.png
+│   │   ├── Linear Regression - Hyperparameter Sensitivity_ model__l1_ratio.png
 │   │   ├── pca_components.png
 │   │   └── yfinance_time_series.png
 │   ├── dags
@@ -46,8 +46,7 @@
 │   │   │   │   ├── USRECDP.csv
 │   │   │   │   └── VIXCLS.csv
 │   │   │   └── merged_original_dataset.csv
-│   │   ├── __pycache__
-│   │   │   └── airflow.cpython-312.pyc
+│   │   ├── requirements.txt
 │   │   └── src
 │   │       ├── convert_column_dtype.py
 │   │       ├── correlation.py
@@ -65,34 +64,19 @@
 │   │       │   └── XGBoost.py
 │   │       ├── pca.py
 │   │       ├── plot_yfinance_time_series.py
-│   │       ├── __pycache__
-│   │       │   ├── convert_column_dtype.cpython-312.pyc
-│   │       │   ├── correlation.cpython-312.pyc
-│   │       │   ├── download_data.cpython-312.pyc
-│   │       │   ├── feature_interactions.cpython-312.pyc
-│   │       │   ├── handle_missing.cpython-312.pyc
-│   │       │   ├── keep_latest_data.cpython-312.pyc
-│   │       │   ├── lagged_features.cpython-312.pyc
-│   │       │   ├── pca.cpython-312.pyc
-│   │       │   ├── plot_yfinance_time_series.cpython-312.pyc
-│   │       │   ├── remove_weekend_data.cpython-312.pyc
-│   │       │   ├── Requirement.cpython-312.pyc
-│   │       │   ├── scaler.cpython-312.pyc
-│   │       │   └── technical_indicators.cpython-312.pyc
 │   │       ├── remove_weekend_data.py
 │   │       ├── scaler.py
 │   │       ├── technical_indicators.py
-│   │       ├── upload_blob.py
-│   │       └── wandb_log.py
+│   │       └── upload_blob.py
 │   ├── docker-compose.yaml
 │   ├── dvc.lock
 │   ├── dvc.yaml
 │   ├── images_push_to_gcp.sh
 │   ├── logs
 │   │   └── scheduler
-│   │       ├── latest -> /opt/airflow/logs/scheduler/2024-11-16
+│   │       ├── latest -> /opt/airflow/logs/scheduler/2024-11-26
 │   │       └── latest~HEAD
-│   ├── plugins
+│   ├── requirements.txt
 │   ├── tests
 │   │   ├── test_convert_column_dtype.py
 │   │   ├── test_correlation.py
@@ -106,64 +90,63 @@
 │   │   ├── test_remove_weekend_data.py
 │   │   ├── test_scaler.py
 │   │   └── test_technical_indicators.py
-│   ├── wandb
-│   │   ├── latest-run -> run-20241115_215718-z46bnrst
-│   │   ├── run-20241115_211624-l57amau7
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-l57amau7.wandb
-│   │   ├── run-20241115_212249-pkl9a7mt
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-pkl9a7mt.wandb
-│   │   ├── run-20241115_212432-xrpxqqpj
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-xrpxqqpj.wandb
-│   │   ├── run-20241115_212708-qmlg5wns
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-qmlg5wns.wandb
-│   │   ├── run-20241115_212913-vu840z1f
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-vu840z1f.wandb
-│   │   ├── run-20241115_215701-jcdpdy5d
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-jcdpdy5d.wandb
-│   │   ├── run-20241115_215708-13bfiift
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-13bfiift.wandb
-│   │   ├── run-20241115_215712-vbyyrfjs
-│   │   │   ├── files
-│   │   │   │   ├── config.yaml
-│   │   │   │   ├── wandb-metadata.json
-│   │   │   │   └── wandb-summary.json
-│   │   │   └── run-vbyyrfjs.wandb
-│   │   └── run-20241115_215718-z46bnrst
-│   │       ├── files
-│   │       │   ├── config.yaml
-│   │       │   ├── wandb-metadata.json
-│   │       │   └── wandb-summary.json
-│   │       └── run-z46bnrst.wandb
-│   └── working_data
+│   └── wandb
+│       ├── latest-run -> run-20241115_215718-z46bnrst
+│       ├── run-20241115_211624-l57amau7
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-l57amau7.wandb
+│       ├── run-20241115_212249-pkl9a7mt
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-pkl9a7mt.wandb
+│       ├── run-20241115_212432-xrpxqqpj
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-xrpxqqpj.wandb
+│       ├── run-20241115_212708-qmlg5wns
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-qmlg5wns.wandb
+│       ├── run-20241115_212913-vu840z1f
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-vu840z1f.wandb
+│       ├── run-20241115_215701-jcdpdy5d
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-jcdpdy5d.wandb
+│       ├── run-20241115_215708-13bfiift
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-13bfiift.wandb
+│       ├── run-20241115_215712-vbyyrfjs
+│       │   ├── files
+│       │   │   ├── config.yaml
+│       │   │   ├── wandb-metadata.json
+│       │   │   └── wandb-summary.json
+│       │   └── run-vbyyrfjs.wandb
+│       └── run-20241115_215718-z46bnrst
+│           ├── files
+│           │   ├── config.yaml
+│           │   ├── wandb-metadata.json
+│           │   └── wandb-summary.json
+│           └── run-z46bnrst.wandb
 ├── pipelinetree.txt
 └── README.md
 
-35 directories, 132 files
+31 directories, 119 files
