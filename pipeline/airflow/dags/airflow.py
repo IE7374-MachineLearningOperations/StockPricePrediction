@@ -36,17 +36,20 @@ from src.models.model_bias_detection import detect_bias
 
 load_dotenv()
 import os
-import wandb
+
+# import wandb ## TODO
 import sys
 
 sys.path.append(os.path.abspath("."))
-
-with open("dags/config.yaml", "r") as file:
-    config = yaml.safe_load(file)
+try:
+    with open("dags/config.yaml", "r") as file:
+        config = yaml.safe_load(file)
+except FileNotFoundError:
+    config = {"WANDB_API_KEY": "----", "EMAIL_TO": "print.document.2@gmail.com"}
 
 
 os.environ["WANDB__SERVICE_WAIT"] = "300"
-wandb.login(key=config["WANDB_API_KEY"])
+# wandb.login(key=config["WANDB_API_KEY"])  ## TODO
 
 
 # Define function to notify failure or sucess via an email
@@ -86,7 +89,7 @@ default_args = {
 
 # Create a DAG instance named 'datapipeline' with the defined default arguments
 dag = DAG(
-    "Group10_DataPipeline_MLOps",
+    dag_id="Group10_DataPipeline_MLOps",
     default_args=default_args,
     description="Airflow DAG for the datapipeline",
     schedule_interval=None,  # Set the schedule interval or use None for manual triggering

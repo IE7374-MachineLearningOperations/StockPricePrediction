@@ -48,6 +48,7 @@ To read current phase:
 │   ├── ADS_Index.csv
 │   └── preprocessed
 │       ├── final_dataset.csv
+│       ├── schema.pbtxt
 │       └── merged_original_dataset.csv
 ├── GCP                           # Configuration and scripts for Google Cloud operations
 │   ├── application_default_credentials.json
@@ -227,11 +228,17 @@ To set up and run this project, ensure the following are installed:
    ```
 
 2. **Install Python Dependencies**
-   Install all required packages listed in `requirements.txt`:
+
+   Install required packages listed in `requirements.txt`:
    ```bash
    pip install -r requirements.txt
    ```
-
+   (or) 
+   Install few with require for pipeline run:
+   ```bash
+   cd pipeline/
+   pip install -r requirements.txt
+   ``` 
 3. **Initialize DVC**
    Set up DVC to manage large data files by pulling the tracked data:
    ```bash
