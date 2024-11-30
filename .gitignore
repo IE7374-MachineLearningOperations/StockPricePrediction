@@ -297,6 +297,7 @@ pyrightconfig.json
 # pipeline/airflow/.env
 
 miniconda3
+gcpdeploy/src/trainer/service_key.json
 pipeline/airflow/artifacts/*.pkl
 pipeline/airflow/dags/service_key_gcs.json
 /striped-graph-440017-d7-79f99f8253bc.json

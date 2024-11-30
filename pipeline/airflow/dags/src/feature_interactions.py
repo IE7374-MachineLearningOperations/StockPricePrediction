@@ -50,18 +50,18 @@ def add_feature_interactions(data: pd.DataFrame) -> pd.DataFrame:
     logging.info("Starting to add feature interactions")
 
     # Interaction between 'close' price and 'SP500' (product and ratio)
-    data["close_SP500_product"] = data["close"] * data["SP500"]
-    data["close_SP500_ratio"] = data["close"] / (data["SP500"] + 1e-5)  # Avoid division by zero
+    data.loc[:, "close_SP500_product"] = data["close"] * data["SP500"]
+    data.loc[:, "close_SP500_ratio"] = data["close"] / (data["SP500"] + 1e-5)  # Avoid division by zero
     logging.debug("Added close-SP500 interactions")
 
     # Interaction between 'close' price and 'VIXCLS' (volatility)
-    data["close_VIXCLS_product"] = data["close"] * data["VIXCLS"]
-    data["close_VIXCLS_ratio"] = data["close"] / (data["VIXCLS"] + 1e-5)
+    data.loc[:, "close_VIXCLS_product"] = data["close"] * data["VIXCLS"]
+    data.loc[:, "close_VIXCLS_ratio"] = data["close"] / (data["VIXCLS"] + 1e-5)
     logging.debug("Added close-VIXCLS interactions")
 
     # Interaction between 'SP500' and 'VIXCLS'
-    data["SP500_VIXCLS_product"] = data["SP500"] * data["VIXCLS"]
-    data["SP500_VIXCLS_ratio"] = data["SP500"] / (data["VIXCLS"] + 1e-5)
+    data.loc[:, "SP500_VIXCLS_product"] = data["SP500"] * data["VIXCLS"]
+    data.loc[:, "SP500_VIXCLS_ratio"] = data["SP500"] / (data["VIXCLS"] + 1e-5)
     logging.debug("Added SP500-VIXCLS interactions")
 
     logging.info(f"Added 6 new interaction features. New shape: {data.shape}")

@@ -62,6 +62,22 @@ def prepare_data(data, test_size=0.2):
     return X_train, X_test, y_train, y_test
 
 
+def split_time_series_data(df, target_column="close", test_size=0.1, random_state=2024):
+    # Sort the DataFrame by date
+    df = df.sort_index()
+
+    # Split features and target
+    X = df.drop(columns=[target_column, "date"])
+    y = df[target_column]
+
+    # Split into train+val and test
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, shuffle=False, random_state=2024
+    )
+
+    return X_train, X_test, y_train, y_test
+
+
 # def save_and_upload_model(model, local_model_path, gcs_model_path):
 #     """
 #     Saves the model locally and uploads it to GCS.

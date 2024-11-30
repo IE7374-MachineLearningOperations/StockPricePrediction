@@ -42,7 +42,7 @@ from dags.src.feature_interactions import add_feature_interactions
 from dags.src.technical_indicators import add_technical_indicators
 from dags.src.scaler import scaler
 from dags.src.upload_blob import upload_blob
-from dags.src.models.model_utils import save_and_upload_model
+from dags.src.models.model_utils import save_and_upload_model, split_time_series_data
 
 
 # Define the LSTM model class
@@ -64,23 +64,26 @@ class LSTMModel(nn.Module):
 
 
 # Function to preprocess the data
-def preprocess_data(df, timesteps=10):
-    scaler = MinMaxScaler()
-    X = df.drop(["close", "date"], axis=1)
-    y = df["close"]
+def preprocess_data(data, target_column="close", test_size=0.1, random_state=2024, timesteps=10):
+    # scaler = MinMaxScaler()
+    X = data.drop([target_column, "date"], axis=1)
+    y = data[target_column]
 
-    X_scaled = scaler.fit_transform(X)
-    y_scaled = scaler.fit_transform(y.values.reshape(-1, 1))
+    # X_scaled = scaler.fit_transform(X)
+    # y_scaled = scaler.fit_transform(y.values.reshape(-1, 1))
 
     X_reshaped, y_reshaped = [], []
-    for i in range(timesteps, len(X_scaled)):
-        X_reshaped.append(X_scaled[i - timesteps : i])
-        y_reshaped.append(y_scaled[i])
+    # for i in range(timesteps, len(X_scaled)):
+    #     X_reshaped.append(X_scaled[i - timesteps : i])
+    #     y_reshaped.append(y_scaled[i])
+    for i in range(timesteps, len(X)):
+        X_reshaped.append(X[i - timesteps : i])
+        y_reshaped.append(y[i])
 
     X_reshaped, y_reshaped = np.array(X_reshaped), np.array(y_reshaped)
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X_reshaped, y_reshaped, test_size=0.2, random_state=42, shuffle=False
+        X_reshaped, y_reshaped, test_size, random_state, shuffle=False
     )
 
     return (
@@ -94,13 +97,15 @@ def preprocess_data(df, timesteps=10):
 
 # Function to train and evaluate the LSTM model
 def train_and_evaluate_lstm(
-    df, timesteps=10, hidden_size=50, dropout_rate=0.2, optimizer_type="adam", batch_size=32, epochs=20
+    data, timesteps=10, hidden_size=50, dropout_rate=0.2, optimizer_type="adam", batch_size=32, epochs=20
 ):
     cur_time = datetime.now().strftime("%Y%m%d-%H%M%S")
     config = {"timesteps": timesteps, "hidden_size": hidden_size, "dropout_rate": dropout_rate}
     # logger = wandb.init(project="stock-price-prediction", name=f"experiment_{cur_time}", config=config) ## TODO
 
-    X_train, X_test, y_train, y_test, scaler = preprocess_data(df, timesteps)
+    X_train, X_test, y_train, y_test, scaler = preprocess_data(
+        data, target_column="close", test_size=0.1, random_state=2024, timesteps=10
+    )
 
     input_size = X_train.shape[2]
     model = LSTMModel(input_size, hidden_size, dropout_rate)
