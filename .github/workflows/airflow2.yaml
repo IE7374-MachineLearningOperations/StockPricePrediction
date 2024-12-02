@@ -89,10 +89,10 @@ jobs:
         run: |
           docker-compose exec -T airflow-scheduler airflow dags list
 
-      - name: Trigger Airflow DAG
-        working-directory: ./pipeline/airflow
-        run: |
-          docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
+      # - name: Trigger Airflow DAG
+      #   working-directory: ./pipeline/airflow
+      #   run: |
+      #     docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
 
       # - name: Monitor DAG Execution
       #   working-directory: ./pipeline/airflow
