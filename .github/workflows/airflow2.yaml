@@ -99,29 +99,6 @@ jobs:
           # Unpause the DAG if necessary
           docker-compose exec -T airflow-scheduler airflow dags unpause $DAG_ID 
 
-      - name: monitor
-        # Monitor the DAG state
-        while true; do
-          STATE=$(docker-compose exec -T airflow-scheduler airflow dags state $DAG_ID)
-          echo "$(date): DAG state is $STATE"
-          if [[ "$STATE" == "running" || "$STATE" == "success" || "$STATE" == "failed" ]]; then
-            echo "DAG run completed with state: $STATE"
-            break
-          fi
-          sleep 10
-        done
-
-        # Monitor the task state
-        while true; do
-          TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks states-for-dag-run $DAG_ID $RUN_ID | grep $TASK_ID | awk '{print $2}')
-          echo "$(date): Task status is $TASK_STATUS"
-          if [[ "$TASK_STATUS" == "success" || "$TASK_STATUS" == "failed" ]]; then
-            echo "Task completed with status: $TASK_STATUS"
-            break
-          fi
-          sleep 10
-        done
-
       # - name: Monitor DAG Execution
       #   working-directory: ./pipeline/airflow
       #   run: |
