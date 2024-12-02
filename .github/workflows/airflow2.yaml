@@ -33,10 +33,10 @@ jobs:
     
 
       ## redundant step: check on this
-      - name: Install dependencies  
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      # - name: Install dependencies  
+      #   run: |
+      #     python -m pip install --upgrade pip
+      #     pip install -r requirements.txt
 
       - name: Set up Docker Compose
         run: |
@@ -94,19 +94,47 @@ jobs:
         run: |
           docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
 
+      # - name: Monitor DAG Execution
+      #   working-directory: ./pipeline/airflow
+      #   run: |
+      #     for i in {1..10}; do
+      #       STATUS=$(docker-compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
+      #       echo "Current DAG status: $STATUS"
+      #       if [ "$STATUS" = "success" ]; then
+      #         echo "DAG completed successfully"
+      #         break
+      #       elif [ "$STATUS" = "failed" ]; then
+      #          echo "DAG failed"
+      #         exit 1
+      #       fi
+      #       sleep 60
+      #     done
       - name: Monitor DAG Execution
         working-directory: ./pipeline/airflow
         run: |
+          DAG_ID="Group10_DataPipeline_MLOps"
+          EXECUTION_DATE=$(date +%Y-%m-%d)
+          TASKS=$(docker-compose exec -T airflow-scheduler airflow tasks list $DAG_ID --output json | jq -r '.[]')
+
           for i in {1..10}; do
-            STATUS=$(docker-compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
-            echo "Current DAG status: $STATUS"
-            if [ "$STATUS" = "success" ]; then
-              echo "DAG completed successfully"
+            ALL_SUCCESS=true
+            for TASK_ID in $TASKS; do
+              TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks state $DAG_ID $TASK_ID $EXECUTION_DATE)
+              echo "Current status of task $TASK_ID: $TASK_STATUS"
+              if [ "$TASK_STATUS" != "success" ]; then
+                ALL_SUCCESS=false
+                if [ "$TASK_STATUS" = "failed" ]; then
+                  echo "Task $TASK_ID failed"
+                  exit 1
+                fi
+              fi
+            done
+
+            if [ "$ALL_SUCCESS" = true ]; then
+              echo "All tasks completed successfully"
               break
-            elif [ "$STATUS" = "failed" ]; then
-               echo "DAG failed"
-              exit 1
             fi
+
             sleep 60
           done
 
