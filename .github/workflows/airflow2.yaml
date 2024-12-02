@@ -107,29 +107,6 @@ jobs:
           echo "Unpausing DAG if necessary..."
           docker-compose exec -T airflow-scheduler airflow dags unpause $DAG_ID
 
-        
-      # - name: Monitor DAG Execution
-      #   working-directory: ./pipeline/airflow
-      #   run: |
-      #     for i in {1..10}; do
-      #       STATUS=$(docker-compose exec -T airflow-scheduler airflow dags state Group10_DataPipeline_MLOps $(date +%Y-%m-%d))
-      #       echo "Current DAG status: $STATUS"
-      #       if [ "$STATUS" = "success" ]; then
-      #         echo "DAG completed successfully"
-      #         break
-      #       elif [ "$STATUS" = "failed" ]; then
-      #          echo "DAG failed"
-      #         exit 1
-      #       fi
-      #       sleep 60
-      #     done
-
-      - name: Monitor DAG Execution
-        working-directory: ./pipeline/airflow
-        run: |
-          DAG_ID="Group10_DataPipeline_MLOps"
-          RUN_ID="manual__$(date +%Y%m%dT%H%M%S)"
-          
           TASKS=$(docker-compose exec -T airflow-scheduler airflow tasks list $DAG_ID | tail -n +2 | awk '{print $1}')
 
           for i in {1..10}; do

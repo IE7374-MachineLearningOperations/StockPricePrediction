@@ -45,7 +45,7 @@ try:
     with open("dags/config.yaml", "r") as file:
         config = yaml.safe_load(file)
 except FileNotFoundError:
-    config = {"WANDB_API_KEY": "----", "EMAIL_TO": "print.document.2@gmail.com"}
+    config = {"WANDB_API_KEY": "----", "EMAIL_TO": "print.document.cb@gmail.com"}
 
 
 os.environ["WANDB__SERVICE_WAIT"] = "300"
@@ -100,8 +100,7 @@ dag = DAG(
 # Define the email task
 send_email_task = EmailOperator(
     task_id="send_email_task",
-    # to=config["EMAIL_TO"],  # Email address of the recipient
-    to="print.document.2@gmail.com",  # Email address of the recipient
+    to=config["EMAIL_TO"],  # Email address of the recipient
     subject="Notification from Airflow",
     html_content="<p>This is a notification email sent from Airflow indicating that the dag was triggered</p>",
     dag=dag,
@@ -219,8 +218,7 @@ upload_blob_task = PythonOperator(
 
 # Set task dependencies
 (
-    send_email_task
-    >> download_data_task
+    download_data_task
     >> convert_type_data_task
     >> keep_latest_data_task
     >> remove_weekend_data_task
@@ -233,7 +231,7 @@ upload_blob_task = PythonOperator(
     >> scaler_task
     >> visualize_pca_components_task
     >> upload_blob_task
-    # >> send_email_task
+    >> send_email_task
 )
 
 # If this script is run directly, allow command-line interaction with the DAG
