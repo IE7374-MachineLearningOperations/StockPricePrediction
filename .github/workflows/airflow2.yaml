@@ -92,7 +92,12 @@ jobs:
       - name: Trigger Airflow DAG
         working-directory: ./pipeline/airflow
         run: |
-          docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
+          DAG_ID="Group10_DataPipeline_MLOps"
+          RUN_ID="manual__$(date +%Y%m%dT%H%M%S)"
+          
+          # Trigger the DAG run
+          docker-compose exec -T airflow-scheduler airflow dags trigger -r $RUN_ID $DAG_ID
+
           # Wait for the DAG to initialize
           sleep 10
 
