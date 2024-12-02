@@ -219,8 +219,8 @@ upload_blob_task = PythonOperator(
 
 # Set task dependencies
 (
-    download_data_task
-    >> send_email_task
+    send_email_task
+    >> download_data_task
     >> convert_type_data_task
     >> keep_latest_data_task
     >> remove_weekend_data_task
