@@ -112,7 +112,7 @@ jobs:
           for i in {1..10}; do
             ALL_SUCCESS=true
             for TASK_ID in $TASKS; do
-              TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks states-for-dag-run $DAG_ID $RUN_ID | grep $TASK_ID | awk '{print $2}')
+              TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks states-for-dag-run $DAG_ID $RUN_ID | grep $TASK_ID | awk '{print $7}')
 
               echo "Current status of task $TASK_ID: $TASK_STATUS"
               if [ "$TASK_STATUS" != "success" ]; then
