@@ -19,7 +19,21 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      # Step 4.1: Decode and Write GCP Service Account Key to File
+      - name: Decode and Write GCP Service Account Key
+        run: |
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > pipeline/airflow/dags/service_key_gcs.json
+        shell: bash
+
+       # Step 4.2: Decode and Write Config to File
+      - name: Decode and Write Email Config
+        run: |
+          echo "${{ secrets.EMAIL_AIRFLOW }}" | base64 -d > pipeline/airflow/dags/config.yaml
+        shell: bash
+    
+
+      ## redundant step: check on this
+      - name: Install dependencies  
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
