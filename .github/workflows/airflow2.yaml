@@ -89,14 +89,11 @@ jobs:
         run: |
           docker-compose exec -T airflow-scheduler airflow dags list
 
-      # - name: Trigger Airflow DAG
-      #   working-directory: ./pipeline/airflow
-      #   run: |
-      #     docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
-      #     while true; do
-      #       docker-compose exec -T airflow-scheduler airflow tasks state $DAG_ID $TASK_ID $EXECUTION_DATE
-      #       sleep 10
-      #     done
+      - name: Trigger Airflow DAG
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose exec -T airflow-scheduler airflow dags trigger -r manual_$(date +%Y%m%d%H%M%S) Group10_DataPipeline_MLOps
+          sleep 180
 
 
       # - name: Monitor DAG Execution
@@ -115,42 +112,42 @@ jobs:
       #       sleep 60
       #     done
 
-      - name: Monitor DAG Execution
-        working-directory: ./pipeline/airflow
-        run: |
-          DAG_ID="Group10_DataPipeline_MLOps"
-          RUN_ID="manual__$(date +%Y%m%dT%H%M%S)"
+      # - name: Monitor DAG Execution
+      #   working-directory: ./pipeline/airflow
+      #   run: |
+      #     DAG_ID="Group10_DataPipeline_MLOps"
+      #     RUN_ID="manual__$(date +%Y%m%dT%H%M%S)"
           
-          # Trigger the DAG run
-          docker-compose exec -T airflow-scheduler airflow dags trigger -r $RUN_ID $DAG_ID
+      #     # Trigger the DAG run
+      #     docker-compose exec -T airflow-scheduler airflow dags trigger -r $RUN_ID $DAG_ID
           
-          # Wait for the DAG run to start
-          sleep 60
+      #     # Wait for the DAG run to start
+      #     sleep 60
           
-          TASKS=$(docker-compose exec -T airflow-scheduler airflow tasks list $DAG_ID | tail -n +2 | awk '{print $1}')
+      #     TASKS=$(docker-compose exec -T airflow-scheduler airflow tasks list $DAG_ID | tail -n +2 | awk '{print $1}')
 
-          for i in {1..10}; do
-            ALL_SUCCESS=true
-            for TASK_ID in $TASKS; do
-              TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks states-for-dag-run $DAG_ID $RUN_ID | grep $TASK_ID | awk '{print $2}')
+      #     for i in {1..10}; do
+      #       ALL_SUCCESS=true
+      #       for TASK_ID in $TASKS; do
+      #         TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks states-for-dag-run $DAG_ID $RUN_ID | grep $TASK_ID | awk '{print $2}')
 
-              echo "Current status of task $TASK_ID: $TASK_STATUS"
-              if [ "$TASK_STATUS" != "success" ]; then
-                ALL_SUCCESS=false
-                if [ "$TASK_STATUS" = "failed" ]; then
-                  echo "Task $TASK_ID failed"
-                  exit 1
-                fi
-              fi
-            done
+      #         echo "Current status of task $TASK_ID: $TASK_STATUS"
+      #         if [ "$TASK_STATUS" != "success" ]; then
+      #           ALL_SUCCESS=false
+      #           if [ "$TASK_STATUS" = "failed" ]; then
+      #             echo "Task $TASK_ID failed"
+      #             exit 1
+      #           fi
+      #         fi
+      #       done
 
-            if [ "$ALL_SUCCESS" = true ]; then
-              echo "All tasks completed successfully"
-              break
-            fi
+      #       if [ "$ALL_SUCCESS" = true ]; then
+      #         echo "All tasks completed successfully"
+      #         break
+      #       fi
 
-            sleep 60
-          done
+      #       sleep 60
+      #     done
 
       - name: Stop Airflow Services
         if: always()
