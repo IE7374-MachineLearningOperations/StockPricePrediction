@@ -114,7 +114,7 @@ jobs:
         run: |
           DAG_ID="Group10_DataPipeline_MLOps"
           EXECUTION_DATE=$(date +%Y-%m-%d)
-          TASKS=$(docker-compose exec -T airflow-scheduler airflow tasks list $DAG_ID --output json | jq -r '.[]')
+          TASKS=$(docker-compose exec -T airflow-scheduler airflow tasks list $DAG_ID | tail -n +2 | awk '{print $1}')
 
           for i in {1..10}; do
             ALL_SUCCESS=true
