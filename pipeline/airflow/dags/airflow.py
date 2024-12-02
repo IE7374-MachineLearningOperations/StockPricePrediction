@@ -215,40 +215,6 @@ upload_blob_task = PythonOperator(
     dag=dag,
 )
 
-linear_regression_model_task = PythonOperator(
-    task_id="linear_regression_model_task",
-    python_callable=time_series_regression_pipeline,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-lstm_model_task = PythonOperator(
-    task_id="lstm_model_task",
-    python_callable=grid_search_lstm,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-xgboost_model_task = PythonOperator(
-    task_id="xgboost_model_task",
-    python_callable=train_xgboost_with_metrics,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-sensitivity_analysis_task = PythonOperator(
-    task_id="sensitivity_analysis_task",
-    python_callable=sensitivity_analysis,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-detect_bias_task = PythonOperator(
-    task_id="detect_bias_task",
-    python_callable=detect_bias,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
 
 # Set task dependencies
 (
@@ -265,11 +231,6 @@ detect_bias_task = PythonOperator(
     >> scaler_task
     >> visualize_pca_components_task
     >> upload_blob_task
-    >> linear_regression_model_task
-    >> lstm_model_task
-    >> xgboost_model_task
-    >> sensitivity_analysis_task
-    >> detect_bias_task
     >> send_email_task
 )
 
