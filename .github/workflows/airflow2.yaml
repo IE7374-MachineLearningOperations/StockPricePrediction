@@ -94,15 +94,33 @@ jobs:
         run: |
           DAG_ID="Group10_DataPipeline_MLOps"
           RUN_ID="manual__$(date +%Y%m%dT%H%M%S)"
-          
+
           # Trigger the DAG run
+          echo "Triggering DAG: $DAG_ID with Run ID: $RUN_ID"
           docker-compose exec -T airflow-scheduler airflow dags trigger -r $RUN_ID $DAG_ID
 
           # Wait for the DAG to initialize
+          echo "Waiting for DAG to initialize..."
           sleep 10
 
-          # Unpause the DAG if necessary
-          docker-compose exec -T airflow-scheduler airflow dags unpause $DAG_ID 
+          # Ensure the DAG is unpaused
+          echo "Unpausing DAG if necessary..."
+          docker-compose exec -T airflow-scheduler airflow dags unpause $DAG_ID
+
+          # Monitor the DAG state until it completes
+          echo "Monitoring DAG state..."
+          while true; do
+            DAG_STATE=$(docker-compose exec -T airflow-scheduler airflow dags state $DAG_ID $RUN_ID | grep -Eo 'running|success|failed|stopped')
+            echo "$(date): DAG state is $DAG_STATE"
+            
+            if [[ "$DAG_STATE" == "success" || "$DAG_STATE" == "failed" || "$DAG_STATE" == "stopped" ]]; then
+              echo "DAG run completed with state: $DAG_STATE"
+              break
+            fi
+
+            # Wait before checking again
+            sleep 10
+          done
 
       # - name: Monitor DAG Execution
       #   working-directory: ./pipeline/airflow
