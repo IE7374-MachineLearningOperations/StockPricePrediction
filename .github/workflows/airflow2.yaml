@@ -113,13 +113,20 @@ jobs:
         working-directory: ./pipeline/airflow
         run: |
           DAG_ID="Group10_DataPipeline_MLOps"
-          EXECUTION_DATE=$(date +%Y-%m-%d)
+          RUN_ID="manual__$(date +%Y%m%dT%H%M%S)"
+          
+          # Trigger the DAG run
+          docker-compose exec -T airflow-scheduler airflow dags trigger -r $RUN_ID $DAG_ID
+          
+          # Wait for the DAG run to start
+          sleep 60
+          
           TASKS=$(docker-compose exec -T airflow-scheduler airflow tasks list $DAG_ID | tail -n +2 | awk '{print $1}')
 
           for i in {1..10}; do
             ALL_SUCCESS=true
             for TASK_ID in $TASKS; do
-              TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks state $DAG_ID $TASK_ID $EXECUTION_DATE)
+              TASK_STATUS=$(docker-compose exec -T airflow-scheduler airflow tasks state $DAG_ID $TASK_ID --run-id $RUN_ID)
               echo "Current status of task $TASK_ID: $TASK_STATUS"
               if [ "$TASK_STATUS" != "success" ]; then
                 ALL_SUCCESS=false
