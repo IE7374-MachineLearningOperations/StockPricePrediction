@@ -20,7 +20,7 @@ This notebook is focused on preparing data for further analysis:
 - **Visualization**: Provides data insights with visualizations to understand distributions and detect potential issues.
 
 ### 3. `DataSchema_Stats.ipynb`
-Here's a breakdown of README on validating data quality, including both a general overview and specific details related to schema and statistics generation.
+Here's a breakdown on validating data quality, including both a general overview and specific details related to schema and statistics generation.
 ---
 
 ### Data Validation: Schema and Statistics Generation

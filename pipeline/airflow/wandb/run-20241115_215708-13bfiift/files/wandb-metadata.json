@@ -1,0 +1,39 @@
+{
+  "os":  "macOS-10.16-x86_64-i386-64bit",
+  "python":  "3.10.14",
+  "startedAt":  "2024-11-16T02:57:08.527166Z",
+  "program":  "/Users/vy/my_work/NEU_course/MLOps/StockPricePrediction/pipeline/airflow/dags/src/models/LSTM.py",
+  "codePath":  "pipeline/airflow/dags/src/models/LSTM.py",
+  "git":  {
+    "remote":  "git@github.com:IE7374-MachineLearningOperations/StockPricePrediction.git",
+    "commit":  "666e45055e758c0623889b2609e00d597bb1343a"
+  },
+  "email":  "vynguyen.analyst@gmail.com",
+  "root":  "/Users/vy/my_work/NEU_course/MLOps/StockPricePrediction/pipeline/airflow",
+  "host":  "vymac.local",
+  "username":  "vy",
+  "executable":  "/opt/anaconda3/envs/ml_ops/bin/python",
+  "codePathLocal":  "dags/src/models/LSTM.py",
+  "cpu_count":  8,
+  "cpu_count_logical":  8,
+  "disk":  {
+    "/":  {
+      "total":  "245107195904",
+      "used":  "245011165184"
+    }
+  },
+  "memory":  {
+    "total":  "8589934592"
+  },
+  "cpu":  {
+    "count":  8,
+    "countLogical":  8
+  },
+  "apple":  {
+    "name":  "Unknown",
+    "ecpuCores":  4,
+    "pcpuCores":  4,
+    "gpuCores":  8,
+    "memoryGb":  8
+  }
+}

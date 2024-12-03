@@ -6,7 +6,7 @@ aws/
 #*.dvc
 #.dvc/
 .dvc/cache/
-.dvc/tmp/
+
 ### JupyterNotebooks ###
 # gitignore template for Jupyter Notebooks
 # website: http://jupyter.org/
@@ -17,7 +17,7 @@ aws/
 profile_default/
 ipython_config.py
 
-pipeline/airflow/dags/config.yaml
+GCP/striped-graph-440017-d7-c8fdb42bc8ba.json
 
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
@@ -295,3 +295,12 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 # pipeline/airflow/.env
+
+miniconda3
+pipeline/airflow/artifacts/*.pkl
+pipeline/airflow/dags/service_key_gcs.json
+/striped-graph-440017-d7-79f99f8253bc.json
+miniconda3
+GCP/striped-graph-440017-d7-79f99f8253bc.json
+*.pkl
+*.h5

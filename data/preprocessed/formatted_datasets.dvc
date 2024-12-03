@@ -1,6 +1,0 @@
-outs:
-- md5: c2827c79e1fc7cf3130da44ddc2ebfa4.dir
-  size: 5359215
-  nfiles: 5
-  hash: md5
-  path: formatted_datasets

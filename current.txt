@@ -1,22 +1,57 @@
 .
+├── artifacts
+│   ├── correlation_matrix_after_removing_correlated_features.png
+│   ├── ElasticNet.pkl
+│   ├── Feature Importance for ElasticNet on Test Set.png
+│   ├── Feature Importance for Lasso on Test Set.png
+│   ├── Feature Importance for Ridge on Test Set.png
+│   ├── Lasso.pkl
+│   ├── Ridge.pkl
+│   └── schema.pbtxt
 ├── assets
 │   ├── airflow_dags.jpeg
+│   ├── airflow_gantt.png
+│   ├── airflow_gcp.png
 │   ├── airflow_graph.jpeg
+│   ├── airflow_graph.png
 │   ├── airflow_logging.jpeg
+│   ├── airflow_pipeline.png
+│   ├── artifacts_blob.png
+│   ├── compare_different_runs.png
 │   ├── correlation_matrix_after_removing_correlated_features.png
+│   ├── dags_run.png
+│   ├── Data_split1.png
+│   ├── detail_one_run.png
+│   ├── detect_bias_log.png
 │   ├── email_notification.jpeg
 │   ├── gantt.jpeg
+│   ├── gcp-artifcats.png
 │   ├── gcpbucket.png
+│   ├── github_trigger.png
+│   ├── linear_reg_outputs.png
+│   ├── Linear Regression - Hyperparameter Sensitivity_ model__alpha.png
+│   ├── Linear Regression - Hyperparameter Sensitivity_ model__l1_ratio.png
+│   ├── mlops10trigger.png
 │   ├── MLOps Group10 Diag.png
+│   ├── model_analysis_elasticNet.png
+│   ├── model_checkpoints.png
+│   ├── overview_charts_all_runs.png
 │   ├── pca_components.png
 │   ├── pca_components.png.dvc
+│   ├── results_linear_regression .png
+│   ├── save_best_model_to_gcs.png
 │   ├── test_functions.jpeg
+│   ├── trigger_cloudfun.png
+│   ├── VM_instance.png
+│   ├── wandb_main_dashboard_overview_all_runs.png
 │   └── yfinance_time_series.png
 ├── Assignments_Submissions
 │   ├── DataPipeline Phase
 │   │   ├── Airflow README.md
 │   │   ├── Notebooks README.md
 │   │   └── Project README.md
+│   ├── Model development pipeline phase
+│   │   └── README.md
 │   └── Scoping Phase
 │       ├── Data Collection Group 10.pdf
 │       ├── errors-failure Group 10.pdf
@@ -28,20 +63,94 @@
 ├── data
 │   ├── ADS_Index.csv
 │   ├── fama_french.csv
-│   ├── FRED_Variables.dvc
 │   └── preprocessed
+│       ├── Data_pipeline_airflow_dags_data_final_dataset_for_modeling.csv
 │       ├── final_dataset.csv
-│       ├── formatted_datasets.dvc
-│       └── merged_original_dataset.csv
+│       ├── merged_original_dataset.csv
+│       └── schema.pbtxt
+├── data.dvc
+├── dockerfile
 ├── GCP
-│   └── application_default_credentials.json
+│   ├── application_default_credentials.json
+│   ├── bucketcsv.sh
+│   ├── deploy.yml
+│   ├── filesbucket.ipynb
+│   ├── gcloud
+│   │   ├── access_tokens.db
+│   │   ├── active_config
+│   │   ├── application_default_credentials.json
+│   │   ├── config_sentinel
+│   │   ├── configurations
+│   │   │   └── config_default
+│   │   ├── credentials.db
+│   │   ├── default_configs.db
+│   │   ├── gce
+│   │   ├── legacy_credentials
+│   │   │   └── girimanohar.v@gmail.com
+│   │   │       └── adc.json
+│   │   └── logs
+│   │       ├── 2024.11.02
+│   │       │   ├── 20.37.55.605079.log
+│   │       │   ├── 20.38.38.714906.log
+│   │       │   ├── 20.41.30.275671.log
+│   │       │   ├── 20.42.08.687593.log
+│   │       │   ├── 20.42.42.750776.log
+│   │       │   └── 21.41.50.611594.log
+│   │       ├── 2024.11.03
+│   │       │   └── 21.19.58.837386.log
+│   │       ├── 2024.11.04
+│   │       │   └── 23.23.42.037233.log
+│   │       ├── 2024.11.11
+│   │       │   └── 23.46.00.507746.log
+│   │       └── 2024.11.12
+│   │           ├── 00.25.58.902976.log
+│   │           ├── 00.26.00.904522.log
+│   │           ├── 01.05.15.269098.log
+│   │           ├── 01.05.45.514427.log
+│   │           ├── 01.05.59.837488.log
+│   │           ├── 01.06.01.989998.log
+│   │           ├── 01.08.28.779757.log
+│   │           ├── 01.08.30.970295.log
+│   │           ├── 01.09.47.331817.log
+│   │           ├── 01.10.10.702675.log
+│   │           └── 01.10.12.933871.log
+│   ├── gcpbuckettree.txt
+│   ├── GCPresorce.py
+│   ├── README.md
+│   ├── striped-graph-440017-d7-79f99f8253bc.json
+│   └── synclocal.ipynb
 ├── LICENSE
-├── LICENSE.dvc
 ├── models
+│   ├── cleaned_data.csv
+│   ├── FeatureEng_and_ModelBiasDetn.ipynb
+│   ├── KNN.ipynb
+│   ├── linear_regression.ipynb
+│   ├── LSTM.ipynb
+│   ├── ML Models.ipynb
+│   ├── model_checkpoints_ElasticNet.pkl
+│   ├── model_checkpoints_Lasso.pkl
+│   ├── model_checkpoints_LSTM.pkl
+│   ├── model_checkpoints_Ridge.pkl
+│   ├── model_checkpoints_XGBoost.pkl
+│   ├── README.md
+│   ├── RF_Model.ipynb
+│   ├── SVM.ipynb
+│   ├── XGBoost.ipynb
+│   ├── X_test_split.csv
+│   ├── X_train_split.csv
+│   └── X_validation_split.csv
 ├── pipeline
 │   ├── airflow
 │   │   ├── artifacts
 │   │   │   ├── correlation_matrix_after_removing_correlated_features.png
+│   │   │   ├── Feature Importance for ElasticNet on Test Set.png
+│   │   │   ├── Feature Importance for ElasticNet.png
+│   │   │   ├── Feature Importance for Lasso on Test Set.png
+│   │   │   ├── Feature Importance for Lasso.png
+│   │   │   ├── Feature Importance for Ridge on Test Set.png
+│   │   │   ├── Feature Importance for Ridge.png
+│   │   │   ├── Linear Regression - Hyperparameter Sensitivity_ model__alpha.png
+│   │   │   ├── Linear Regression - Hyperparameter Sensitivity_ model__l1_ratio.png
 │   │   │   ├── pca_components.png
 │   │   │   └── yfinance_time_series.png
 │   │   ├── dags
@@ -49,7 +158,6 @@
 │   │   │   ├── data
 │   │   │   │   ├── ADS_index.csv
 │   │   │   │   ├── fama_french.csv
-│   │   │   │   ├── final_dataset.csv
 │   │   │   │   ├── FRED_Variables
 │   │   │   │   │   ├── AMERIBOR.csv
 │   │   │   │   │   ├── BAMLH0A0HYM2.csv
@@ -79,8 +187,7 @@
 │   │   │   │   │   ├── USRECDP.csv
 │   │   │   │   │   └── VIXCLS.csv
 │   │   │   │   └── merged_original_dataset.csv
-│   │   │   ├── __pycache__
-│   │   │   │   └── airflow.cpython-312.pyc
+│   │   │   ├── requirements.txt
 │   │   │   └── src
 │   │   │       ├── convert_column_dtype.py
 │   │   │       ├── correlation.py
@@ -89,32 +196,28 @@
 │   │   │       ├── handle_missing.py
 │   │   │       ├── keep_latest_data.py
 │   │   │       ├── lagged_features.py
+│   │   │       ├── models
+│   │   │       │   ├── linear_regression.py
+│   │   │       │   ├── LSTM.py
+│   │   │       │   ├── model_bias_detection.py
+│   │   │       │   ├── model_sensitivity_analysis.py
+│   │   │       │   ├── model_utils.py
+│   │   │       │   └── XGBoost.py
 │   │   │       ├── pca.py
 │   │   │       ├── plot_yfinance_time_series.py
-│   │   │       ├── __pycache__
-│   │   │       │   ├── convert_column_dtype.cpython-312.pyc
-│   │   │       │   ├── correlation.cpython-312.pyc
-│   │   │       │   ├── download_data.cpython-312.pyc
-│   │   │       │   ├── feature_interactions.cpython-312.pyc
-│   │   │       │   ├── handle_missing.cpython-312.pyc
-│   │   │       │   ├── keep_latest_data.cpython-312.pyc
-│   │   │       │   ├── lagged_features.cpython-312.pyc
-│   │   │       │   ├── pca.cpython-312.pyc
-│   │   │       │   ├── plot_yfinance_time_series.cpython-312.pyc
-│   │   │       │   ├── remove_weekend_data.cpython-312.pyc
-│   │   │       │   ├── Requirement.cpython-312.pyc
-│   │   │       │   ├── scaler.cpython-312.pyc
-│   │   │       │   └── technical_indicators.cpython-312.pyc
 │   │   │       ├── remove_weekend_data.py
 │   │   │       ├── scaler.py
-│   │   │       └── technical_indicators.py
+│   │   │       ├── technical_indicators.py
+│   │   │       └── upload_blob.py
 │   │   ├── docker-compose.yaml
+│   │   ├── dvc.lock
 │   │   ├── dvc.yaml
+│   │   ├── images_push_to_gcp.sh
 │   │   ├── logs
 │   │   │   └── scheduler
-│   │   │       ├── latest -> /opt/airflow/logs/scheduler/2024-11-05
+│   │   │       ├── latest -> /opt/airflow/logs/scheduler/2024-11-26
 │   │   │       └── latest~HEAD
-│   │   ├── plugins
+│   │   ├── requirements.txt
 │   │   ├── tests
 │   │   │   ├── test_convert_column_dtype.py
 │   │   │   ├── test_correlation.py
@@ -128,7 +231,62 @@
 │   │   │   ├── test_remove_weekend_data.py
 │   │   │   ├── test_scaler.py
 │   │   │   └── test_technical_indicators.py
-│   │   └── working_data
+│   │   └── wandb
+│   │       ├── latest-run -> run-20241115_215718-z46bnrst
+│   │       ├── run-20241115_211624-l57amau7
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-l57amau7.wandb
+│   │       ├── run-20241115_212249-pkl9a7mt
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-pkl9a7mt.wandb
+│   │       ├── run-20241115_212432-xrpxqqpj
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-xrpxqqpj.wandb
+│   │       ├── run-20241115_212708-qmlg5wns
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-qmlg5wns.wandb
+│   │       ├── run-20241115_212913-vu840z1f
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-vu840z1f.wandb
+│   │       ├── run-20241115_215701-jcdpdy5d
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-jcdpdy5d.wandb
+│   │       ├── run-20241115_215708-13bfiift
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-13bfiift.wandb
+│   │       ├── run-20241115_215712-vbyyrfjs
+│   │       │   ├── files
+│   │       │   │   ├── config.yaml
+│   │       │   │   ├── wandb-metadata.json
+│   │       │   │   └── wandb-summary.json
+│   │       │   └── run-vbyyrfjs.wandb
+│   │       └── run-20241115_215718-z46bnrst
+│   │           ├── files
+│   │           │   ├── config.yaml
+│   │           │   ├── wandb-metadata.json
+│   │           │   └── wandb-summary.json
+│   │           └── run-z46bnrst.wandb
 │   ├── pipelinetree.txt
 │   └── README.md
 ├── README.md
@@ -138,11 +296,21 @@
 ├── src
 │   ├── data_preprocessing.ipynb
 │   ├── DataSchema_Stats.ipynb
+│   ├── FeatureEng_and_ModelBiasDetn.ipynb
 │   ├── Feature Engineering.ipynb
+│   ├── KNN.ipynb
+│   ├── linear_regression.ipynb
+│   ├── LSTM.ipynb
+│   ├── ML Models.ipynb
 │   ├── PROJECT_DATA_CLEANING.ipynb
-│   └── README.md
+│   ├── README.md
+│   ├── RF_Model.ipynb
+│   ├── Stock_Price_Prediction_ML_Models.ipynb
+│   ├── Stocks_ML_Models.ipynb
+│   ├── SVM.ipynb
+│   └── XGBoost.ipynb
 ├── src.dvc
-├── test.dvc
+├── striped-graph-440017-d7-79f99f8253bc.json
 └── tests
     ├── test_convert_column_dtype.py
     ├── test_correlation.py
@@ -157,4 +325,4 @@
     ├── test_scaler.py
     └── test_technical_indicators.py
 
-25 directories, 133 files
+54 directories, 272 files

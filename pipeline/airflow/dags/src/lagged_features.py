@@ -19,22 +19,22 @@ logging.basicConfig(
 # Setting matplotlib logging level to suppress debug messages
 logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
-sys.path.append(os.path.abspath("pipeline/airflow"))
-sys.path.append(os.path.abspath("."))
+# sys.path.append(os.path.abspath("pipeline/airflow"))
+# sys.path.append(os.path.abspath("."))
 
-from dags.src.download_data import (
-    get_yfinance_data,
-    get_fama_french_data,
-    get_ads_index_data,
-    get_sp500_data,
-    get_fred_data,
-    merge_data,
-)
-from dags.src.convert_column_dtype import convert_type_of_columns
-from dags.src.keep_latest_data import keep_latest_data
-from dags.src.remove_weekend_data import remove_weekends
-from dags.src.handle_missing import fill_missing_values
-from dags.src.correlation import plot_correlation_matrix, removing_correlated_variables
+# from dags.src.download_data import (
+#     get_yfinance_data,
+#     get_fama_french_data,
+#     get_ads_index_data,
+#     get_sp500_data,
+#     get_fred_data,
+#     merge_data,
+# )
+# from dags.src.convert_column_dtype import convert_type_of_columns
+# from dags.src.keep_latest_data import keep_latest_data
+# from dags.src.remove_weekend_data import remove_weekends
+# from dags.src.handle_missing import fill_missing_values
+# from dags.src.correlation import plot_correlation_matrix, removing_correlated_variables
 
 
 def add_lagged_features(data: pd.DataFrame) -> pd.DataFrame:
@@ -81,47 +81,47 @@ def add_lagged_features(data: pd.DataFrame) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    ticker_symbol = "GOOGL"
-    logging.info(f"Starting data processing for {ticker_symbol}")
+    pass
+    # ticker_symbol = "GOOGL"
+    # logging.info(f"Starting data processing for {ticker_symbol}")
 
-    try:
-        data = merge_data(ticker_symbol)
-        logging.info(f"Data merged. Shape: {data.shape}")
+    # try:
+    #     data = merge_data(ticker_symbol)
+    #     logging.info(f"Data merged. Shape: {data.shape}")
 
-        data = convert_type_of_columns(data)
-        logging.info("Column types converted")
+    #     data = convert_type_of_columns(data)
+    #     logging.info("Column types converted")
 
-        filtered_data = keep_latest_data(data, 10)
-        logging.info(f"Kept latest data. New shape: {filtered_data.shape}")
+    #     filtered_data = keep_latest_data(data, 10)
+    #     logging.info(f"Kept latest data. New shape: {filtered_data.shape}")
 
-        removed_weekend_data = remove_weekends(filtered_data)
-        logging.info(f"Weekend data removed. New shape: {removed_weekend_data.shape}")
+    #     removed_weekend_data = remove_weekends(filtered_data)
+    #     logging.info(f"Weekend data removed. New shape: {removed_weekend_data.shape}")
 
-        filled_data = fill_missing_values(removed_weekend_data)
-        logging.info(f"Missing values filled. Shape: {filled_data.shape}")
+    #     filled_data = fill_missing_values(removed_weekend_data)
+    #     logging.info(f"Missing values filled. Shape: {filled_data.shape}")
 
-        removed_correlated_data = removing_correlated_variables(filled_data)
-        logging.info(f"Correlated variables removed. New shape: {removed_correlated_data.shape}")
+    #     removed_correlated_data = removing_correlated_variables(filled_data)
+    #     logging.info(f"Correlated variables removed. New shape: {removed_correlated_data.shape}")
 
-        lagged_data = add_lagged_features(removed_correlated_data)
-        logging.info(f"Lagged features added. Final shape: {lagged_data.shape}")
+    #     lagged_data = add_lagged_features(removed_correlated_data)
+    #     logging.info(f"Lagged features added. Final shape: {lagged_data.shape}")
 
-        print(lagged_data)
-        logging.info("Data processing completed successfully")
+    #     print(lagged_data)
+    #     logging.info("Data processing completed successfully")
 
-    except Exception as e:
-        logging.error(f"An error occurred during data processing: {str(e)}")
-        raise
+    # except Exception as e:
+    #     logging.error(f"An error occurred during data processing: {str(e)}")
+    #     raise
 
-    # Optional: Save the final DataFrame to a file
-    try:
-        if not os.path.exists("artifacts"):
-            os.makedirs("artifacts")
-            logging.info("Created artifacts directory")
+    # # Optional: Save the final DataFrame to a file
+    # try:
+    #     if not os.path.exists("artifacts"):
+    #         os.makedirs("artifacts")
+    #         logging.info("Created artifacts directory")
 
-        lagged_data.to_csv("artifacts/processed_data_with_lags.csv", index=False)
-        logging.info("Processed data saved to artifacts/processed_data_with_lags.csv")
-    except Exception as e:
-        logging.error(f"Failed to save processed data: {str(e)}")
-
-    logging.info("Script execution completed")
+    #     lagged_data.to_csv("artifacts/processed_data_with_lags.csv", index=False)
+    #     logging.info("Processed data saved to artifacts/processed_data_with_lags.csv")
+    # except Exception as e:
+    #     logging.error(f"Failed to save processed data: {str(e)}")
+    # logging.info("Script execution completed")

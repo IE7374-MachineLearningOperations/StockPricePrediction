@@ -67,7 +67,7 @@ The primary goal of this project is to improve stock price forecasting and predi
 └── requirements.txt            # Python dependencies
 
 ```
-![Project Chart](https://github.com/IE7374-MachineLearningOperations/StockPricePrediction/blob/bf7526844544398e53ca528f30e883d1d87a493c/assets/MLOps%20Group10%20Diag.png)
+![Project Chart](https://github.com/IE7374-MachineLearningOperations/StockPricePrediction/blob/v1.0/assets/MLOps%20Group10%20Diag.png)
 
 **Key Components:**
 - `data/`: Contains raw and processed datasets 
@@ -190,7 +190,7 @@ We used **DVC (Data Version Control)** for files management.
    ```
 5. **Our Project Bucket**
 
-![GCP Bucket](https://github.com/IE7374-MachineLearningOperations/StockPricePrediction/blob/bf7526844544398e53ca528f30e883d1d87a493c/assets/gcpbucket.png)
+![GCP Bucket](https://github.com/IE7374-MachineLearningOperations/StockPricePrediction/blob/v1.0/assets/gcpbucket.png)
 
 ---
 

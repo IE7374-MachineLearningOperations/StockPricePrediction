@@ -2,51 +2,27 @@ stages:
   download_data:
     cmd: python dags/src/download_data.py
     deps:
-      - dags/src/download_data.py
+      -  dags/src/download_data.py
     outs:
-      - dags/data/merged_original_dataset.csv
-
-  handle_missing_data:
-    cmd: python dags/src/handle_missing.py
-    deps:
-      - dags/src/handle_missing.py
-      - dags/data/ADS_index.csv
-      - dags/data/fama_french.csv
-    outs:
-      - dags/data/final_dataset.csv
-
+      -  dags/data/merged_original_dataset.csv
+    
   correlation_analysis:
-    cmd: python dags/src/correlation.py
+    cmd: python  dags/src/correlation.py
     deps:
-      - dags/src/correlation.py
-      - dags/data/final_dataset.csv
-      - dags/data/merged_original_dataset.csv
+      -  dags/src/correlation.py
     outs:
-      - artifacts/correlation_matrix_after_removing_correlated_features.png
+      -  artifacts/correlation_matrix_after_removing_correlated_features.png
 
   pca_analysis:
-    cmd: python dags/src/pca.py
+    cmd: python  dags/src/pca.py
     deps:
-      - dags/src/pca.py
-      - dags/data/merged_original_dataset.csv
-      - dags/data/final_dataset.csv
+      -  dags/src/pca.py
     outs:
-      - artifacts/pca_components.png
+      -  artifacts/pca_components.png
 
   plot_time_series:
-    cmd: python dags/src/plot_yfinance_time_series.py
+    cmd: python  dags/src/plot_yfinance_time_series.py
     deps:
-      - dags/src/plot_yfinance_time_series.py
-      - dags/data/merged_original_dataset.csv
-      - dags/data/final_dataset.csv
+      -  dags/src/plot_yfinance_time_series.py
     outs:
-      - artifacts/yfinance_time_series.png
-
-  lagged_features:
-    cmd: python dags/src/lagged_features.py
-    deps:
-      - dags/src/lagged_features.py
-      - dags/data/merged_original_dataset.csv
-      - dags/data/final_dataset.csv
-    outs:
-      - dags/data/lagged_features.csv
+      -  artifacts/yfinance_time_series.png

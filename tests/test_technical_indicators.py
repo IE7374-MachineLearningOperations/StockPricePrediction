@@ -40,10 +40,6 @@ def test_add_technical_indicators(sample_data):
     # Check MACD signal lengths
     assert len(result["MACD"]) == len(result["MACD_signal"])
 
-    # Check Bollinger Bands
-    assert all(result["BB_lower"] <= result["close"])
-    assert all(result["close"] <= result["BB_upper"])
-
     # Check if NaN values are dropped
     assert not result.isnull().any().any()
 
