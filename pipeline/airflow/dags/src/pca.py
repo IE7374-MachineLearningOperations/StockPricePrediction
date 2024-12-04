@@ -56,9 +56,6 @@ def apply_pca(data: pd.DataFrame, variance_threshold=0.95):
     """
 
     logging.info(f"Applying PCA with variance threshold: {variance_threshold}")
-    # df = data["final_scaled_data"]
-    # data_pca = df.drop(columns=["date", "close"])
-    # data_pca.dropna(inplace=True)
     logging.debug(f"Shape of data for PCA: {data.shape}")
 
     # Apply PCA
@@ -107,7 +104,6 @@ def visualize_pca_components(data: pd.DataFrame, variance_threshold=0.95):
 
 
 if __name__ == "__main__":
-    # pass
     ticker_symbol = "GOOGL"
     data = merge_data(ticker_symbol)
     data = convert_type_of_columns(data)

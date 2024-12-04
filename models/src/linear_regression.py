@@ -7,13 +7,12 @@ import matplotlib.pyplot as plt
 import lime
 import lime.lime_tabular
 import joblib
-from sklearn.model_selection import train_test_split, TimeSeriesSplit, GridSearchCV
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.inspection import permutation_importance
-from sklearn.preprocessing import StandardScaler
 
 
 # Function to plot Actual vs Predicted using Time Series Graph
@@ -62,22 +61,6 @@ def feature_importance_analysis(model, X_test, y_test):
     plt.xlabel("Importance")
     plt.tight_layout()
     # plt.show()
-
-
-# def split_time_series_data(df, target_column="close", test_size=0.1, random_state=2024):
-#     # Sort the DataFrame by date
-#     df = df.sort_index()
-
-#     # Split features and target
-#     X = df.drop(columns=[target_column, "date"])
-#     y = df[target_column]
-
-#     # Split into train+val and test
-#     X_train, X_test, y_train, y_test = train_test_split(
-#         X, y, test_size=test_size, shuffle=False, random_state=2024
-#     )
-
-#     return X_train, X_test, y_train, y_test
 
 
 # Function to train and evaluate models with hyperparameter tuning and time series split

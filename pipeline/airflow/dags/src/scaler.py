@@ -50,7 +50,6 @@ def scaler(data: pd.DataFrame, mean=None, variance=None):
     """
     logging.info("Starting data scaling")
     scaler = StandardScaler()
-    #  df = df.sort_index()
 
     # Split features and target
     X = data.drop(columns=["close", "date"])
@@ -59,7 +58,8 @@ def scaler(data: pd.DataFrame, mean=None, variance=None):
     # split date
     train_date = date.iloc[: -int(len(date) * 0.1)]
     test_date = date.iloc[-int(len(date) * 0.1) :]
-    # data_scaling = data.drop(columns=["date", "close"])
+
+    # Split data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=False, random_state=2024)
 
     scaler = scaler.fit(X_train)
@@ -86,24 +86,6 @@ def scaler(data: pd.DataFrame, mean=None, variance=None):
     )
 
     final_scaled_data = pd.concat([scaled_data_train, scaled_data_test], axis=0)
-    # if mean is not None and variance is not None:
-    #     logging.info("Using provided mean and variance for scaling")
-    #     scaler = scaler.fit(X)
-    #     scaler.mean_ = mean
-    #     scaler.var_ = variance
-    #     scaled_data = scaler.transform(X)
-    # else:
-    #     logging.info("Fitting and transforming data")
-    #     scaled_data = scaler.fit_transform(X)
-
-    # add date column back to the scaled data
-    # final_scaled_data = pd.concat(
-    #     [
-    #         data[["date", "close"]].reset_index(drop=True),
-    #         pd.DataFrame(scaled_data, columns=X.columns),
-    #     ],
-    #     axis=1,
-    # )
 
     logging.info(f"Scaling completed. Scaled data shape: {final_scaled_data.shape}")
     # save dataset
@@ -111,14 +93,6 @@ def scaler(data: pd.DataFrame, mean=None, variance=None):
     # scaled_data_test.to_csv("pipeline/airflow/dags/data/scaled_data_test.csv", index=False)
     # final_scaled_data.to_csv("pipeline/airflow/dags/data/final_dataset_for_modeling.csv", index=False)
 
-    gcs_file_path = "Data/pipeline/airflow/dags/data/final_dataset_for_modeling.csv"
-
-    # if storage_client is not None:
-    #     bucket = storage_client.bucket("stock_price_prediction_dataset")
-    #     blob = bucket.blob(gcs_file_path)
-    #     blob.upload_from_string(data.to_csv(index=False), "text/csv")
-
-    # return True
     all_data = {
         "scaled_data_train": scaled_data_train,
         "scaled_data_test": scaled_data_test,
