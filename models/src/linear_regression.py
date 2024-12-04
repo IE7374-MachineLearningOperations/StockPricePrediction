@@ -60,6 +60,7 @@ def feature_importance_analysis(model, X_test, y_test):
     plt.title("Top 10 Features - Permutation Importance")
     plt.xlabel("Importance")
     plt.tight_layout()
+    plt.savefig("artifacts/feature_importance.png")
     # plt.show()
 
 
@@ -110,6 +111,15 @@ def train_linear_regression(data_train, target_column="close", param_grid=None, 
     local_model_path = "artifacts/models/best_linear_regression_model.joblib"
     joblib.dump(best_model, local_model_path)
 
+    # folder = "artifacts"
+    # if not os.path.exists(folder):
+    #     os.makedirs(folder)
+
+    # output_path = f"{folder}/{model_name}.joblib"
+    # gcs_model_path = f"model_checkpoints/{model_name}.joblib"
+    # save_and_upload_model(model=best_model, local_model_path=output_path, gcs_model_path=gcs_model_path)
+    # return best_model, best_params
+
     return best_model, best_params
 
 
@@ -123,6 +133,7 @@ def predict_linear_regression(data_test, target_column="close"):
     # data_test is scaled data
     X_test = data_test.drop(columns=["date", target_column])
     y_test = data_test[target_column]
+
     pred_metrics = {}
 
     # Predict using best model
@@ -146,38 +157,10 @@ def predict_linear_regression(data_test, target_column="close"):
     # Store the trained model for plotting later
     linear_regression_best_model[model_name] = best_model
 
-    # Print results
-    # for model_name, metrics in pred_metrics.items():
-    #     print(
-    #         f"\n{model_name}_Validation_MSE: {metrics['val_MSE']:.4f}, {model_name}_Validation_RMSE: {metrics['val_RMSE']:.4f}, "
-    #         f"{model_name}_Validation_MAE: {metrics['val_MAE']:.4f}, {model_name}_Validation_R2: {metrics['val_R2']:.4f}"
-    #     )
-    #     print(
-    #         f"{model_name}_Test_MSE: {metrics['test_MSE']:.4f}, {model_name}_Test_RMSE: {metrics['test_RMSE']:.4f}, "
-    #         f"{model_name}_Test_MAE: {metrics['test_MAE']:.4f}, {model_name}_Test_R2: {metrics['test_R2']:.4f}"
-    #     )
-
     # Plot Actual vs Predicted for each model
     # plot_actual_vs_predicted(lr_best_model, X_test, y_test)
 
-    # feature_importance_analysis(best_model, X_test, y_test)
-
-    # explainer = lime.lime_tabular.LimeTabularExplainer(
-    #     X_train.values, feature_names=X_train.columns, class_names=["close"], mode="regression"
-    # )
-
-    # Choose a random instance to explain
-    # instance = X_test.iloc[np.random.randint(0, len(X_test))].values
-
-    # Generate the explanation
-    # exp = explainer.explain_instance(instance, best_model.predict, num_features=10)
-
-    # Visualize the explanation
-    # exp.show_in_notebook(show_table=True)
-
-    # print(f"\nFeature Importances for {model_name}:")
-    # for feature, importance in exp.as_list():
-    #     print(f"{feature}: {importance}")
+    feature_importance_analysis(best_model, X_test, y_test)
 
     return pred_metrics, linear_regression_best_model, y_test, y_pred
 

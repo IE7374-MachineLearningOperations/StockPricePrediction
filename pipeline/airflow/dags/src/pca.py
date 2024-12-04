@@ -72,7 +72,7 @@ def apply_pca(data: pd.DataFrame, variance_threshold=0.95):
     return reduced_data, explained_variance, n_components
 
 
-def visualize_pca_components(data: pd.DataFrame, variance_threshold=0.95):
+def visualize_pca_components(data: Dict[str, pd.DataFrame], variance_threshold=0.95):
     """
     Visualizes the PCA components in a 2D plot.
 
