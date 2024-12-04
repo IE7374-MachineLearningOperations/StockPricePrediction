@@ -1,5 +1,5 @@
 shap==0.46.0
-numpy==2.0.2
+numpy==1.26.0
 fairlearn==0.11.0
 fredapi==0.5.2
 gcsfs==2024.10.0

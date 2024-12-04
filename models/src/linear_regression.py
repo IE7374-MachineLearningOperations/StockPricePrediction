@@ -6,7 +6,8 @@ import logging
 import matplotlib.pyplot as plt
 import lime
 import lime.lime_tabular
-
+import joblib
+import pickle
 from sklearn.model_selection import train_test_split, TimeSeriesSplit, GridSearchCV
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
@@ -15,30 +16,6 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split, GridSearchCV, TimeSeriesSplit
 from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import StandardScaler
-
-
-sys.path.append(os.path.abspath("pipeline/airflow"))
-sys.path.append(os.path.abspath("."))
-
-from dags.src.download_data import (
-    get_yfinance_data,
-    get_fama_french_data,
-    get_ads_index_data,
-    get_sp500_data,
-    get_fred_data,
-    merge_data,
-)
-from dags.src.convert_column_dtype import convert_type_of_columns
-from dags.src.keep_latest_data import keep_latest_data
-from dags.src.remove_weekend_data import remove_weekends
-from dags.src.handle_missing import fill_missing_values
-from dags.src.correlation import removing_correlated_variables
-from dags.src.lagged_features import add_lagged_features
-from dags.src.feature_interactions import add_feature_interactions
-from dags.src.technical_indicators import add_technical_indicators
-from dags.src.scaler import scaler
-from dags.src.upload_blob import upload_blob
-from dags.src.models.model_utils import save_and_upload_model, upload_artifact, split_time_series_data
 
 
 # Function to plot Actual vs Predicted using Time Series Graph
@@ -89,6 +66,22 @@ def feature_importance_analysis(model, X_test, y_test):
     # plt.show()
 
 
+def split_time_series_data(df, target_column="close", test_size=0.1, random_state=2024):
+    # Sort the DataFrame by date
+    df = df.sort_index()
+
+    # Split features and target
+    X = df.drop(columns=[target_column, "date"])
+    y = df[target_column]
+
+    # Split into train+val and test
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, shuffle=False, random_state=2024
+    )
+
+    return X_train, X_test, y_train, y_test
+
+
 # Function to train and evaluate models with hyperparameter tuning and time series split
 def train_lr(
     model, data, target_column="close", test_size=0.1, param_grid=None, tscv=None, random_state=2024
@@ -135,12 +128,21 @@ def train_lr(
     # val_rmse = np.sqrt(val_mse)
     # val_mae = mean_absolute_error(y_val, y_pred_val)
     # val_r2 = r2_score(y_val, y_pred_val)
+    # save best model locally
+    # save_and_upload_model(best_model, "best_model.pkl")
+    # best_model.save("best_model.pkl")
+    local_model_path = "artifacts/models/best_linear_regression_model.pkl"
+    joblib.dump(best_model, local_model_path)
 
     return best_model, best_params
 
 
 # Function to perform time series regression pipeline with model training and evaluation
 def predict_lr(data, target_column="close", test_size=0.1, random_state=2024):
+    # with open("artifacts/models/best_linear_regression_model.pkl", "rb") as f:
+    #     best_model = pickle.load(f)
+    best_model = joblib.load("artifacts/models/best_linear_regression_model.pkl")
+    print(f"best model: {best_model}")
     pred_metrics = {}
 
     # Split data into train and test sets
@@ -161,9 +163,9 @@ def predict_lr(data, target_column="close", test_size=0.1, random_state=2024):
     model = Ridge()
     param_grid = {"model__alpha": [0.05, 0.1, 0.2, 1.0]}
     print(f"\nTraining {model_name} model...")
-    best_model, _ = train_lr(
-        model, data, target_column="close", test_size=0.1, param_grid=param_grid, tscv=tscv, random_state=2024
-    )
+    # best_model, _ = train_lr(
+    #     model, data, target_column="close", test_size=0.1, param_grid=param_grid, tscv=tscv, random_state=2024
+    # )
 
     # Evaluate the best model on the test set (hold-out dataset)
     y_pred = best_model.predict(X_test)
@@ -229,16 +231,10 @@ def predict_lr(data, target_column="close", test_size=0.1, random_state=2024):
 
 
 if __name__ == "__main__":
-    ticker_symbol = "GOOGL"
-    data = merge_data(ticker_symbol)
-    data = convert_type_of_columns(data)
-    filtered_data = keep_latest_data(data, 10)
-    removed_weekend_data = remove_weekends(filtered_data)
-    filled_data = fill_missing_values(removed_weekend_data)
-    removed_correlated_data = removing_correlated_variables(filled_data)
-    lagged_data = add_lagged_features(removed_correlated_data)
-    feature_interactions_data = add_feature_interactions(lagged_data)
-    technical_indicators_data = add_technical_indicators(feature_interactions_data)
-    scaled_data = scaler(technical_indicators_data)
-    pred_metrics, lr_best_model, y_test_unscaled, y_pred = predict_lr(scaled_data)
-    print(pred_metrics, lr_best_model, y_test_unscaled, y_pred)
+    data = pd.read_csv("pipeline/airflow/dags/data/final_dataset_for_modeling.csv")
+    # model = Ridge()
+    # best_model, best_params = train_lr(model, data, target_column="close", test_size=0.1, random_state=2024)
+    pred_metrics, lr_best_model, y_test, y_pred = predict_lr(
+        data, target_column="close", test_size=0.1, random_state=2024
+    )
+    print(y_pred)
