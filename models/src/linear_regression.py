@@ -15,6 +15,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.inspection import permutation_importance
 from sklearn.utils import resample
 import plotly.graph_objs as go
+import wandb
+from datetime import datetime
+from dotenv import load_dotenv
+import os
 
 
 def plot_actual_vs_predicted_interactive(model_name, date_test, y_pred, y_test):
@@ -132,6 +136,10 @@ def train_linear_regression(data_train, target_column="close", param_grid=None, 
     Optionally perform hyperparameter tuning using GridSearchCV.
     Get the best model and its parameters.
     """
+
+    cur_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+    logger = wandb.init(project="stock-price-prediction", name=f"experiment_{cur_time}")
+
     # drop nan values
     data_train = data_train.dropna()
     X_train = data_train.drop(columns=["date", target_column])
@@ -153,12 +161,37 @@ def train_linear_regression(data_train, target_column="close", param_grid=None, 
     # Perform Grid Search with TimeSeriesSplit if a parameter grid is provided
     if param_grid:
         search = GridSearchCV(
-            pipeline, param_grid, cv=tscv, scoring="neg_mean_squared_error", error_score="raise"
+            pipeline, param_grid, cv=tscv, scoring="neg_mean_squared_error", error_score="raise", verbose=3
         )
-        # breakpoint()
         search.fit(X_train, y_train)
         best_model = search.best_estimator_  # average of valid datasets
         best_params = search.best_params_
+        # breakpoint()
+        # create empty dict
+        log_metrics = {}
+        log_metrics["params"] = search.cv_results_["params"]
+        log_metrics["split0_valid_score"] = search.cv_results_["split0_test_score"]
+        log_metrics["split1_valid_score"] = search.cv_results_["split1_test_score"]
+        log_metrics["split2_valid_score"] = search.cv_results_["split2_test_score"]
+        log_metrics["split3_valid_score"] = search.cv_results_["split3_test_score"]
+        log_metrics["split4_valid_score"] = search.cv_results_["split4_test_score"]
+        log_metrics["mean_valid_score"] = search.cv_results_["mean_test_score"]
+        log_metrics["std_valid_score"] = search.cv_results_["std_test_score"]
+        log_metrics["rank_valid_score"] = search.cv_results_["rank_test_score"]
+        log_metrics = {}
+
+        timesteps = [0.05, 0.1, 0.2, 1.0]
+        values = search.cv_results_["mean_test_score"]
+        ## log using wandb
+        for i in range(len(timesteps)):
+            wandb.log({f"apha_{timesteps[i]}": values[i]})
+
+        for key, value in log_metrics.items():
+            for i in range(len(value)):
+                wandb.log({key: value[i]})
+
+        wandb.finish()
+        print(f"log_metrics: {log_metrics}")
 
     else:
         pipeline.fit(X_train, y_train)
@@ -200,7 +233,6 @@ def predict_linear_regression(data_test, target_column="close"):
     # data_test is scaled data
     date_test = data_test["date"]
     X_test = data_test.drop(columns=["date", target_column])
-    # breakpoint()
     y_test = data_test[target_column]
 
     pred_metrics = {}
@@ -235,10 +267,12 @@ def predict_linear_regression(data_test, target_column="close"):
 if __name__ == "__main__":
     scaled_train = pd.read_csv("pipeline/airflow/dags/data/scaled_data_train.csv")
     scaled_test = pd.read_csv("pipeline/airflow/dags/data/scaled_data_test.csv")
-    # best_model, best_params = train_linear_regression(scaled_train, target_column="close")
-    pred_metrics, linear_regression_best_model, y_test, y_pred = predict_linear_regression(
-        scaled_test, target_column="close"
-    )
+    best_model, best_params = train_linear_regression(scaled_train, target_column="close")
+    # print(f"best_model: {best_model}")
+    print(f"best_params: {best_params}")
+    # pred_metrics, linear_regression_best_model, y_test, y_pred = predict_linear_regression(
+    #     scaled_test, target_column="close"
+    # )
     # print(f"y_pred: {y_pred}")
     # print(f"len_y_pred: {len(y_pred)}")
     # print(f"y_test: {y_test}")
