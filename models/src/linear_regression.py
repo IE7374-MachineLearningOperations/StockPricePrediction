@@ -13,40 +13,102 @@ from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.inspection import permutation_importance
+from sklearn.utils import resample
+import plotly.graph_objs as go
 
 
-# Function to plot Actual vs Predicted using Time Series Graph
-# def plot_actual_vs_predicted(models, X_test, y_test):
-#     plt.figure(figsize=(12, 8))
+def plot_actual_vs_predicted_interactive(model_name, date_test, y_pred, y_test):
+    fig = go.Figure()
 
-#     # Plot actual values with date as x-axis
-#     plt.plot(y_test.index, y_test.values, label="Actual", color="black", linewidth=2, alpha=0.7)
+    # Add actual values
+    fig.add_trace(
+        go.Scatter(
+            x=date_test,
+            y=y_test.values.flatten(),
+            mode="lines",
+            name="Actual",
+            line=dict(color="black", width=2),
+            hovertemplate="Date: %{x}<br>Actual: %{y}<extra></extra>",
+        )
+    )
 
-#     # Plot predicted values for each model using the same x-axis (dates)
-#     for model_name, model in models.items():
-#         y_pred_test = model.predict(X_test)
-#         plt.plot(y_test.index, y_pred_test, label=f"Predicted ({model_name})", alpha=0.7)
+    # Add predicted values
+    fig.add_trace(
+        go.Scatter(
+            x=date_test,
+            y=y_pred.flatten(),
+            mode="lines",
+            name=f"Predicted ({model_name})",
+            line=dict(dash="dash"),
+            hovertemplate="Date: %{x}<br>Predicted: %{y}<extra></extra>",
+        )
+    )
 
-#     plt.title("Actual vs Predicted Values")
-#     plt.xlabel("Date")
-#     plt.ylabel("Close Value")
-#     plt.legend()
-#     plt.grid(True)
-
-#     ax = plt.gca()
-
-#     # Set major ticks with fewer intervals based on the index length
-#     tick_frequency = len(y_test) // 10  # Shows one tick every 10% of the data
-#     ax.set_xticks(y_test.index[::tick_frequency])
-
-#     plt.xticks(rotation=90, size=8)
-#     plt.tight_layout()
-# plt.show()
+    # Update layout
+    fig.update_layout(
+        title="Actual vs Predicted Values",
+        xaxis_title="Date",
+        yaxis_title="Close Value",
+        legend=dict(x=0, y=1),
+        hovermode="x unified",
+    )
+    # save the plot
+    fig.write_html("artifacts/actual_vs_predicted_interactive.html")
 
 
-def feature_importance_analysis(model, X_test, y_test):
+def detect_bias(data_train):
+    X_train = data_train.drop(columns=["date", "close"])
+    y_train = data_train["close"]
+
+    # split X_train to train and validation
+    X_train = X_train.iloc[: -int(len(X_train) * 0.1)]
+    y_train = y_train.iloc[: -int(len(y_train) * 0.1)]
+    X_val = X_train.iloc[-int(len(X_train) * 0.1) :]
+    y_val = y_train.iloc[-int(len(y_train) * 0.1) :]
+
+    # Define features and target
+    features = [col for col in data_train.columns if col != "close" and col != "date"]
+    target = "close"
+
+    # Add the target column to the training set for resampling
+    train_data = X_train.copy()
+    train_data["close"] = y_train
+    # Add the target to the training features for resampling
+
+    # Define the slice condition based on VIX values
+    vix_median = pd.to_numeric(train_data["VIXCLS"], errors="coerce").median()
+    high_vix_data = train_data[train_data["VIXCLS"] > vix_median]
+    low_vix_data = train_data[train_data["VIXCLS"] <= vix_median]
+
+    # Upsample high-error slice data
+    high_vix_upsampled = resample(high_vix_data, replace=True, n_samples=len(low_vix_data), random_state=42)
+    balanced_train_data = pd.concat([high_vix_upsampled, low_vix_data])
+
+    # Separate features and target after balancing
+    X_train_balanced = balanced_train_data.drop(columns=["close"])  # Drop the target from balanced data
+    y_train_balanced = balanced_train_data["close"]  # Get the target values
+
+    # Train the ElasticNet model on the balanced data
+    model = Ridge(alpha=0.05)
+    model.fit(X_train_balanced, y_train_balanced)
+
+    # Predict and evaluate on the test set
+    y_pred = model.predict(X_val)
+    mse = mean_squared_error(y_val, y_pred)
+    mae = mean_absolute_error(y_val, y_pred)
+
+    logging.info(f"Linear Regression Test MSE with Resampling: {mse}")
+    logging.info(f"Linear Regression Test MAE with Resampling: {mae}")
+
+    # save mse and mae to a file
+    with open("artifacts/bias_detection_metrics.txt", "w") as f:
+        f.write(f"Linear Regression Test MSE with Resampling: {mse}")
+        f.write(f"Linear Regression Test MAE with Resampling: {mae}")
+
+
+def feature_importance_analysis(model, X_train, y_train):
     # Permutation feature importance
-    perm_importance = permutation_importance(model, X_test, y_test, n_repeats=10, random_state=42)
+    perm_importance = permutation_importance(model, X_train, y_train, n_repeats=10, random_state=42)
 
     # Sort features by importance
     sorted_idx = perm_importance.importances_mean.argsort()
@@ -56,12 +118,11 @@ def feature_importance_analysis(model, X_test, y_test):
 
     plt.figure(figsize=(10, 6))
     plt.barh(range(10), perm_importance.importances_mean[top_10_idx])
-    plt.yticks(range(10), X_test.columns[top_10_idx])
+    plt.yticks(range(10), X_train.columns[top_10_idx])
     plt.title("Top 10 Features - Permutation Importance")
     plt.xlabel("Importance")
     plt.tight_layout()
     plt.savefig("artifacts/feature_importance.png")
-    # plt.show()
 
 
 # Function to train and evaluate models with hyperparameter tuning and time series split
@@ -71,6 +132,8 @@ def train_linear_regression(data_train, target_column="close", param_grid=None, 
     Optionally perform hyperparameter tuning using GridSearchCV.
     Get the best model and its parameters.
     """
+    # drop nan values
+    data_train = data_train.dropna()
     X_train = data_train.drop(columns=["date", target_column])
     y_train = data_train["close"]
 
@@ -92,6 +155,7 @@ def train_linear_regression(data_train, target_column="close", param_grid=None, 
         search = GridSearchCV(
             pipeline, param_grid, cv=tscv, scoring="neg_mean_squared_error", error_score="raise"
         )
+        # breakpoint()
         search.fit(X_train, y_train)
         best_model = search.best_estimator_  # average of valid datasets
         best_params = search.best_params_
@@ -107,6 +171,9 @@ def train_linear_regression(data_train, target_column="close", param_grid=None, 
     # val_rmse = np.sqrt(val_mse)
     # val_mae = mean_absolute_error(y_val, y_pred_val)
     # val_r2 = r2_score(y_val, y_pred_val)
+
+    feature_importance_analysis(best_model, X_train, y_train)
+    detect_bias(data_train)
 
     local_model_path = "artifacts/models/best_linear_regression_model.joblib"
     joblib.dump(best_model, local_model_path)
@@ -131,7 +198,9 @@ def predict_linear_regression(data_test, target_column="close"):
     print(f"best model: {best_model}")
 
     # data_test is scaled data
+    date_test = data_test["date"]
     X_test = data_test.drop(columns=["date", target_column])
+    # breakpoint()
     y_test = data_test[target_column]
 
     pred_metrics = {}
@@ -158,9 +227,7 @@ def predict_linear_regression(data_test, target_column="close"):
     linear_regression_best_model[model_name] = best_model
 
     # Plot Actual vs Predicted for each model
-    # plot_actual_vs_predicted(lr_best_model, X_test, y_test)
-
-    feature_importance_analysis(best_model, X_test, y_test)
+    plot_actual_vs_predicted_interactive(model_name, date_test, y_pred, y_test)
 
     return pred_metrics, linear_regression_best_model, y_test, y_pred
 
@@ -168,11 +235,12 @@ def predict_linear_regression(data_test, target_column="close"):
 if __name__ == "__main__":
     scaled_train = pd.read_csv("pipeline/airflow/dags/data/scaled_data_train.csv")
     scaled_test = pd.read_csv("pipeline/airflow/dags/data/scaled_data_test.csv")
-    # best_model, best_params = train_lr(scaled_train, target_column="close")
+    # best_model, best_params = train_linear_regression(scaled_train, target_column="close")
     pred_metrics, linear_regression_best_model, y_test, y_pred = predict_linear_regression(
         scaled_test, target_column="close"
     )
-    print(f"y_pred: {y_pred}")
-    print(f"len_y_pred: {len(y_pred)}")
-    print(f"y_test: {y_test}")
-    print(f"len_y_test: {len(y_test)}")
+    # print(f"y_pred: {y_pred}")
+    # print(f"len_y_pred: {len(y_pred)}")
+    # print(f"y_test: {y_test}")
+    # print(f"len_y_test: {len(y_test)}")
+    # print(f"best_params: {best_params}")
