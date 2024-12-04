@@ -274,7 +274,7 @@ yfinance==0.2.48
 zc.lockfile==3.0.post1
 zipp==3.20.2
 shap==0.46.0
-numpy==2.0.2
+numpy==1.26.0
 fairlearn==0.11.0
 fredapi==0.5.2
 gcsfs==2024.10.0
@@ -290,7 +290,7 @@ PyYAML==6.0.2
 Requests==2.32.3
 scikit_learn==1.5.2
 seaborn==0.13.2            
-lightgbm==3.3.5                       
+lightgbm==3.3.5           
 torch==2.2.2
 xgboost==2.1.2
 yfinance==0.2.48

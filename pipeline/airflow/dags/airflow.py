@@ -28,11 +28,6 @@ from src.technical_indicators import add_technical_indicators
 from src.scaler import scaler
 from src.pca import visualize_pca_components
 from src.upload_blob import upload_blob
-from src.models.linear_regression import time_series_regression_pipeline
-from src.models.LSTM import grid_search_lstm
-from src.models.XGBoost import train_xgboost_with_metrics
-from src.models.model_sensitivity_analysis import time_series_regression_pipeline as sensitivity_analysis
-from src.models.model_bias_detection import detect_bias
 
 load_dotenv()
 import os
@@ -45,7 +40,7 @@ try:
     with open("dags/config.yaml", "r") as file:
         config = yaml.safe_load(file)
 except FileNotFoundError:
-    config = {"WANDB_API_KEY": "----", "EMAIL_TO": "print.document.2@gmail.com"}
+    config = {"WANDB_API_KEY": "----", "EMAIL_TO": "print.document.cb@gmail.com"}
 
 
 os.environ["WANDB__SERVICE_WAIT"] = "300"
@@ -215,40 +210,6 @@ upload_blob_task = PythonOperator(
     dag=dag,
 )
 
-linear_regression_model_task = PythonOperator(
-    task_id="linear_regression_model_task",
-    python_callable=time_series_regression_pipeline,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-lstm_model_task = PythonOperator(
-    task_id="lstm_model_task",
-    python_callable=grid_search_lstm,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-xgboost_model_task = PythonOperator(
-    task_id="xgboost_model_task",
-    python_callable=train_xgboost_with_metrics,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-sensitivity_analysis_task = PythonOperator(
-    task_id="sensitivity_analysis_task",
-    python_callable=sensitivity_analysis,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
-
-detect_bias_task = PythonOperator(
-    task_id="detect_bias_task",
-    python_callable=detect_bias,
-    op_args=[scaler_task.output],
-    dag=dag,
-)
 
 # Set task dependencies
 (
@@ -265,14 +226,10 @@ detect_bias_task = PythonOperator(
     >> scaler_task
     >> visualize_pca_components_task
     >> upload_blob_task
-    >> linear_regression_model_task
-    >> lstm_model_task
-    >> xgboost_model_task
-    >> sensitivity_analysis_task
-    >> detect_bias_task
     >> send_email_task
 )
 
 # If this script is run directly, allow command-line interaction with the DAG
 if __name__ == "__main__":
+    print("DAG is being run directly...")
     dag.cli()
