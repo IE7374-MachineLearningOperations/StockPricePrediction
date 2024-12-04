@@ -7,44 +7,42 @@ import matplotlib.pyplot as plt
 import lime
 import lime.lime_tabular
 import joblib
-import pickle
 from sklearn.model_selection import train_test_split, TimeSeriesSplit, GridSearchCV
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split, GridSearchCV, TimeSeriesSplit
 from sklearn.inspection import permutation_importance
 from sklearn.preprocessing import StandardScaler
 
 
 # Function to plot Actual vs Predicted using Time Series Graph
-def plot_actual_vs_predicted(models, X_test, y_test):
-    plt.figure(figsize=(12, 8))
+# def plot_actual_vs_predicted(models, X_test, y_test):
+#     plt.figure(figsize=(12, 8))
 
-    # Plot actual values with date as x-axis
-    plt.plot(y_test.index, y_test.values, label="Actual", color="black", linewidth=2, alpha=0.7)
+#     # Plot actual values with date as x-axis
+#     plt.plot(y_test.index, y_test.values, label="Actual", color="black", linewidth=2, alpha=0.7)
 
-    # Plot predicted values for each model using the same x-axis (dates)
-    for model_name, model in models.items():
-        y_pred_test = model.predict(X_test)
-        plt.plot(y_test.index, y_pred_test, label=f"Predicted ({model_name})", alpha=0.7)
+#     # Plot predicted values for each model using the same x-axis (dates)
+#     for model_name, model in models.items():
+#         y_pred_test = model.predict(X_test)
+#         plt.plot(y_test.index, y_pred_test, label=f"Predicted ({model_name})", alpha=0.7)
 
-    plt.title("Actual vs Predicted Values")
-    plt.xlabel("Date")
-    plt.ylabel("Close Value")
-    plt.legend()
-    plt.grid(True)
+#     plt.title("Actual vs Predicted Values")
+#     plt.xlabel("Date")
+#     plt.ylabel("Close Value")
+#     plt.legend()
+#     plt.grid(True)
 
-    ax = plt.gca()
+#     ax = plt.gca()
 
-    # Set major ticks with fewer intervals based on the index length
-    tick_frequency = len(y_test) // 10  # Shows one tick every 10% of the data
-    ax.set_xticks(y_test.index[::tick_frequency])
+#     # Set major ticks with fewer intervals based on the index length
+#     tick_frequency = len(y_test) // 10  # Shows one tick every 10% of the data
+#     ax.set_xticks(y_test.index[::tick_frequency])
 
-    plt.xticks(rotation=90, size=8)
-    plt.tight_layout()
-    # plt.show()
+#     plt.xticks(rotation=90, size=8)
+#     plt.tight_layout()
+# plt.show()
 
 
 def feature_importance_analysis(model, X_test, y_test):
@@ -66,32 +64,40 @@ def feature_importance_analysis(model, X_test, y_test):
     # plt.show()
 
 
-def split_time_series_data(df, target_column="close", test_size=0.1, random_state=2024):
-    # Sort the DataFrame by date
-    df = df.sort_index()
+# def split_time_series_data(df, target_column="close", test_size=0.1, random_state=2024):
+#     # Sort the DataFrame by date
+#     df = df.sort_index()
 
-    # Split features and target
-    X = df.drop(columns=[target_column, "date"])
-    y = df[target_column]
+#     # Split features and target
+#     X = df.drop(columns=[target_column, "date"])
+#     y = df[target_column]
 
-    # Split into train+val and test
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, shuffle=False, random_state=2024
-    )
+#     # Split into train+val and test
+#     X_train, X_test, y_train, y_test = train_test_split(
+#         X, y, test_size=test_size, shuffle=False, random_state=2024
+#     )
 
-    return X_train, X_test, y_train, y_test
+#     return X_train, X_test, y_train, y_test
 
 
 # Function to train and evaluate models with hyperparameter tuning and time series split
-def train_lr(
-    model, data, target_column="close", test_size=0.1, param_grid=None, tscv=None, random_state=2024
-):
+def train_linear_regression(data_train, target_column="close", param_grid=None, tscv=None):
     """
     Train a model on the given data and evaluate it using TimeSeriesSplit cross-validation.
     Optionally perform hyperparameter tuning using GridSearchCV.
     Get the best model and its parameters.
     """
-    X_train, _, y_train, _ = split_time_series_data(data, target_column, test_size, random_state)
+    X_train = data_train.drop(columns=["date", target_column])
+    y_train = data_train["close"]
+
+    # Time Series Cross-Validation for train sets (train and validation)
+    tscv = TimeSeriesSplit(n_splits=5)
+
+    # Define models and hyperparameters for hyperparameter tuning
+    model_name = "model"
+    model = Ridge()
+    param_grid = {"model__alpha": [0.05, 0.1, 0.2, 1.0]}
+    print(f"\nTraining {model_name} model...")
 
     pipeline = Pipeline(
         [("imputer", SimpleImputer(strategy="mean")), ("model", model)]  # Handle NaNs in the dataset
@@ -106,17 +112,6 @@ def train_lr(
         best_model = search.best_estimator_  # average of valid datasets
         best_params = search.best_params_
 
-        # Hyperparameter Sensitivity Analysis
-        results = pd.DataFrame(search.cv_results_)
-        for param in param_grid:
-            plt.figure(figsize=(10, 6))
-            plt.plot(results[f"param_{param}"], -results["mean_test_score"])
-            plt.xlabel(param)
-            plt.ylabel("Mean Squared Error")
-            plt.title(f"Hyperparameter Sensitivity: {param}")
-            plt.xscale("log")
-            # plt.show()
-
     else:
         pipeline.fit(X_train, y_train)
         best_model = pipeline
@@ -128,62 +123,36 @@ def train_lr(
     # val_rmse = np.sqrt(val_mse)
     # val_mae = mean_absolute_error(y_val, y_pred_val)
     # val_r2 = r2_score(y_val, y_pred_val)
-    # save best model locally
-    # save_and_upload_model(best_model, "best_model.pkl")
-    # best_model.save("best_model.pkl")
-    local_model_path = "artifacts/models/best_linear_regression_model.pkl"
+
+    local_model_path = "artifacts/models/best_linear_regression_model.joblib"
     joblib.dump(best_model, local_model_path)
 
     return best_model, best_params
 
 
 # Function to perform time series regression pipeline with model training and evaluation
-def predict_lr(data, target_column="close", test_size=0.1, random_state=2024):
-    # with open("artifacts/models/best_linear_regression_model.pkl", "rb") as f:
-    #     best_model = pickle.load(f)
-    best_model = joblib.load("artifacts/models/best_linear_regression_model.pkl")
+def predict_linear_regression(data_test, target_column="close"):
+
+    # load best model
+    best_model = joblib.load("artifacts/models/best_linear_regression_model.joblib")
     print(f"best model: {best_model}")
+
+    # data_test is scaled data
+    X_test = data_test.drop(columns=["date", target_column])
+    y_test = data_test[target_column]
     pred_metrics = {}
 
-    # Split data into train and test sets
-    X_train, X_test, y_train, y_test = split_time_series_data(data, target_column, test_size)
-
-    # Time Series Cross-Validation for train sets (train and validation)
-    tscv = TimeSeriesSplit(n_splits=5)
-
-    # scaler = StandardScaler()
-    # X_train_scaled = scaler.fit_transform(X_train)
-    # X_test_scaled = scaler.transform(X_test)
-    # y_train_scaled = scaler.fit_transform(y_train.values.reshape(-1, 1))
-    # y_test_scaled = scaler.transform(y_test.values.reshape(-1, 1))
-
-    # Define models and hyperparameters for hyperparameter tuning
-    lr_best_model = {}
+    # Predict using best model
+    linear_regression_best_model = {}
     model_name = "Ridge Regression"
-    model = Ridge()
-    param_grid = {"model__alpha": [0.05, 0.1, 0.2, 1.0]}
-    print(f"\nTraining {model_name} model...")
-    # best_model, _ = train_lr(
-    #     model, data, target_column="close", test_size=0.1, param_grid=param_grid, tscv=tscv, random_state=2024
-    # )
+    y_pred = best_model.predict(X_test)
 
     # Evaluate the best model on the test set (hold-out dataset)
-    y_pred = best_model.predict(X_test)
-    # y_pred = scaler.inverse_transform(y_pred_scaled.reshape(-1, 1))
-    # y_test_unscaled = scaler.inverse_transform(y_test_scaled.reshape(-1, 1))
-
     test_mse = mean_squared_error(y_test, y_pred)
     test_rmse = np.sqrt(test_mse)
     test_mae = mean_absolute_error(y_test, y_pred)
     test_r2 = r2_score(y_test, y_pred)
-    # Evaluate the best model on the test set (hold-out dataset)
-    # y_pred = best_model.predict(X_test)
-    # test_mse = mean_squared_error(y_test, y_pred)
-    # test_rmse = np.sqrt(test_mse)
-    # test_mae = mean_absolute_error(y_test, y_pred)
-    # test_r2 = r2_score(y_test, y_pred)
 
-    # Store results in the results dictionary (including validation and test results)
     pred_metrics[model_name] = {
         "test_MSE": test_mse,
         "test_RMSE": test_rmse,
@@ -192,7 +161,7 @@ def predict_lr(data, target_column="close", test_size=0.1, random_state=2024):
     }
 
     # Store the trained model for plotting later
-    lr_best_model[model_name] = best_model
+    linear_regression_best_model[model_name] = best_model
 
     # Print results
     # for model_name, metrics in pred_metrics.items():
@@ -206,35 +175,38 @@ def predict_lr(data, target_column="close", test_size=0.1, random_state=2024):
     #     )
 
     # Plot Actual vs Predicted for each model
-    plot_actual_vs_predicted(lr_best_model, X_test, y_test)
+    # plot_actual_vs_predicted(lr_best_model, X_test, y_test)
 
-    feature_importance_analysis(best_model, X_test, y_test)
+    # feature_importance_analysis(best_model, X_test, y_test)
 
-    explainer = lime.lime_tabular.LimeTabularExplainer(
-        X_train.values, feature_names=X_train.columns, class_names=["close"], mode="regression"
-    )
+    # explainer = lime.lime_tabular.LimeTabularExplainer(
+    #     X_train.values, feature_names=X_train.columns, class_names=["close"], mode="regression"
+    # )
 
     # Choose a random instance to explain
-    instance = X_test.iloc[np.random.randint(0, len(X_test))].values
+    # instance = X_test.iloc[np.random.randint(0, len(X_test))].values
 
     # Generate the explanation
-    exp = explainer.explain_instance(instance, best_model.predict, num_features=10)
+    # exp = explainer.explain_instance(instance, best_model.predict, num_features=10)
 
     # Visualize the explanation
     # exp.show_in_notebook(show_table=True)
 
-    print(f"\nFeature Importances for {model_name}:")
-    for feature, importance in exp.as_list():
-        print(f"{feature}: {importance}")
+    # print(f"\nFeature Importances for {model_name}:")
+    # for feature, importance in exp.as_list():
+    #     print(f"{feature}: {importance}")
 
-    return pred_metrics, lr_best_model, y_test, y_pred
+    return pred_metrics, linear_regression_best_model, y_test, y_pred
 
 
 if __name__ == "__main__":
-    data = pd.read_csv("pipeline/airflow/dags/data/final_dataset_for_modeling.csv")
-    # model = Ridge()
-    # best_model, best_params = train_lr(model, data, target_column="close", test_size=0.1, random_state=2024)
-    pred_metrics, lr_best_model, y_test, y_pred = predict_lr(
-        data, target_column="close", test_size=0.1, random_state=2024
+    scaled_train = pd.read_csv("pipeline/airflow/dags/data/scaled_data_train.csv")
+    scaled_test = pd.read_csv("pipeline/airflow/dags/data/scaled_data_test.csv")
+    # best_model, best_params = train_lr(scaled_train, target_column="close")
+    pred_metrics, linear_regression_best_model, y_test, y_pred = predict_linear_regression(
+        scaled_test, target_column="close"
     )
-    print(y_pred)
+    print(f"y_pred: {y_pred}")
+    print(f"len_y_pred: {len(y_pred)}")
+    print(f"y_test: {y_test}")
+    print(f"len_y_test: {len(y_test)}")

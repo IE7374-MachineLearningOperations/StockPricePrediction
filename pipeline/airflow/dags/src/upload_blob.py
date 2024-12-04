@@ -50,13 +50,13 @@ def upload_blob(data, gcs_file_path: str = None):
     upload_from_file()
     upload_from_filename()
     """
+    for data_name, df in data.items():
+        gcs_file_path = f"Data/pipeline/airflow/dags/data/{data_name}.csv"
 
-    gcs_file_path = "Data/pipeline/airflow/dags/data/final_dataset_for_modeling.csv"
-
-    if storage_client is not None:
-        bucket = storage_client.bucket("stock_price_prediction_dataset")
-        blob = bucket.blob(gcs_file_path)
-        blob.upload_from_string(data.to_csv(index=False), "text/csv")
+        if storage_client is not None:
+            bucket = storage_client.bucket("stock_price_prediction_dataset")
+            blob = bucket.blob(gcs_file_path)
+            blob.upload_from_string(df.to_csv(index=False), "text/csv")
 
     return True
 
