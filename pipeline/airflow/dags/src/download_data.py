@@ -233,4 +233,4 @@ def merge_data(ticker_symbol: str) -> pd.DataFrame:
 if __name__ == "__main__":
     data = merge_data("GOOGL")
     data.to_csv("dags/data/merged_original_dataset.csv", index=False)
-    print(data)
+    # print(data)
