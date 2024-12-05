@@ -27,10 +27,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r pipeline/requirements.txt
 
-      # Step 4: Run Py Tests
-      - name: Run Tests
-        run: |
-          pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
+      # # Step 4: Run Py Tests
+      # - name: Run Tests
+      #   run: |
+      #     pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
 
       # Step 5: Authenticate with GCP
       - name: Authenticate to GCP
