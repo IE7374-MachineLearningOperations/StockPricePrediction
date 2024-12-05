@@ -3,17 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Visualization</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Stock Price Graph for GOOGL</h1>
-    
-    <!-- Plotly graph embedded here -->
-    <div>{{ stock_graph|safe }}</div>
+    <header>
+        <h1>Google Stock Price Visualizations</h1>
+    </header>
 
-    <form action="/predict" method="POST">
-        <button type="submit">Predict Stock Price</button>
-    </form>
-    <button onclick="location.href='/reset'">Back to Start</button>
+    <div class="container">
+        <div class="graph-container">
+            <!-- Placeholder for the generated stock graph -->
+            {{ stock_graph|safe }}
+        </div>
+
+        <p>Now, that we have a good understanding of Google Stock price data, press the button below to get the predicted price</p>
+        <a href="{{ url_for('predict') }}">
+            <button class="predict-button">Predict Stock Price</button>
+        </a>
+    </div>
+
+    <footer>
+        <h4>Group 10 - Stock Price Predictor</h4>
+        <h4>Fall 2024: IE 7374 Machine Learning Operations</h4>
+    </footer>
 </body>
 </html>

@@ -3,19 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock Price Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Home - Stock Price Predictor</title>
 </head>
 <body>
-    <h1>Welcome to Stock Price Prediction App</h1>
-    <p>We use advanced machine learning models to predict the stock price of Google (GOOGL). Our model analyzes historical data and predicts the closing stock price for the next day, helping you make informed decisions.</p>
-    
-    <p>Features of our product:</p>
-    <ul>
-        <li>Real-time stock price prediction for GOOGL</li>
-        <li>Historical stock data visualization</li>
-        <li>Advanced AI-driven insights</li>
-    </ul>
 
-    <button onclick="location.href='/visualize'">Proceed to Visualization</button>
+    <header>
+        <h1>Stock Price Prediction App</h1>
+    </header>
+
+    <div class="container">
+        <p>Our innovative app helps you predict the next day's stock prices using Machine Learning. Currently, we are focusing on predicting the stock price of one of the most influential companies in the world: Google (GOOGL).</p>
+        
+        <h2>What We Do</h2>
+        <p>With our platform, we provide stock price predictions using historical data, technical indicators, and machine learning models trained on financial metrics. Our goal is to offer users insights into potential market movements and help make informed decisions.</p>
+        
+        <h2>Why Google?</h2>
+        <p>We chose to showcase Google because of its immense impact on global technology and financial markets. By accurately predicting GOOGL prices, we demonstrate the power of our prediction model.</p>
+        
+        <h2>How It Works</h2>
+        <p>Data for the stock price values were obtained from yfinance. Other macroeconomic indicators like Fama French factors, ADS index, SP500 and Fred api were also added to the data to improve predictive accuracy. Whether you're an investor or just interested in the market, our tool will give you a glimpse into the future of stock price movements.</p>
+        
+        <a href="{{ url_for('visualize') }}"></a>
+            <button class="visualize-button" onclick="window.location.href='{{ url_for('visualize') }}'">Visualize</button>
+        </a>
+    </div>
+
+    <footer>
+        <h4>Group 10 - Stock Price Predictor</h4>
+        <h4>Fall 2024: IE 7374 Machine Learning Operations</h4>
+    </footer>
 </body>
 </html>
