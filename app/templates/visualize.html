@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Google Stock Price Visualizations</h1>
+    </header>
+
+    <div class="container">
+        <div class="graph-container">
+            <!-- Placeholder for the generated stock graph -->
+            {{ stock_graph|safe }}
+        </div>
+
+        <p>Now, that we have a good understanding of Google Stock price data, press the button below to get the predicted price</p>
+        <a href="{{ url_for('predict') }}">
+            <button class="predict-button">Predict Stock Price</button>
+        </a>
+    </div>
+
+    <footer>
+        <h4>Group 10 - Stock Price Predictor</h4>
+        <h4>Fall 2024: IE 7374 Machine Learning Operations</h4>
+    </footer>
+</body>
+</html>

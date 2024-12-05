@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #4285F4;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer {
+            background-color: #4285F4;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .container {
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        .box {
+            display: inline-block;
+            width: 200px;
+            height: 150px;
+            background-color: #e8eaf6;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin: 10px;
+            padding: 10px;
+            font-size: 22px;
+            font-weight: bold;
+            vertical-align: middle;
+            color: #333;
+            position: relative;
+        }
+
+        .buy-button {
+            background-color: green;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 15px;
+            border-radius: 5px;
+        }
+
+        .sell-button {
+            background-color: red;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 15px;
+            border-radius: 5px;
+        }
+
+        #predicted-price .arrow {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 25px;
+        }
+
+        /* Back to home button */
+        .back-button {
+            background-color: #34A853;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Prediction Time!!</h1>
+    </header>
+
+    <div class="container">
+        <h2>Should You Buy or Sell?</h2>
+
+        <p>Let's play a game!! Our model has come up with the predicted value but it is hidden. It is up to you to guess whether you should be Buying or Selling the stock.</p>
+        <!-- Stock Price Boxes -->
+        <div class="box">
+            <p>Current Price</p>
+            <p id="current-price">{{ current_price }}</p>
+        </div>
+        <div class="box">
+            <p>Predicted Price</p>
+            <p id="predicted-price">{{ predicted_price }}</p>
+        </div>
+
+        <!-- Buy and Sell Buttons -->
+        <h3>Make your choice:</h3>
+        <button class="buy-button" onclick="makeChoice('buy')">Buy</button>
+        <button class="sell-button" onclick="makeChoice('sell')">Sell</button>
+
+        <!-- Feedback message for user's choice -->
+        <div id="feedback"></div>
+
+        <!-- Back to Home Button -->
+        <br>
+        <a href="/" class="back-button">Back to Home</a>
+    </div>
+
+    <footer>
+        <h4>Group 10 - Stock Price Predictor</h4>
+        <h4>Fall 2024: IE 7374 Machine Learning Operations</h4>
+    </footer>
+
+    <script>
+        // Initially, predicted price is hidden
+        document.getElementById('predicted-price').innerText = '';
+
+        // Function to handle Buy/Sell choice
+        function makeChoice(choice) {
+            const predictedPrice = '{{ predicted_price }}';
+            const currentPrice = '{{ current_price }}';
+            const feedbackElement = document.getElementById('feedback');
+            const predictedPriceBox = document.getElementById('predicted-price');
+
+            // Show predicted price
+            predictedPriceBox.innerText = predictedPrice;
+
+            // Add up or down arrow next to predicted price
+            const priceArrow = document.createElement('span');
+            priceArrow.classList.add('arrow');
+            
+            if (parseFloat(predictedPrice) > parseFloat(currentPrice)) {
+                priceArrow.innerHTML = '&#x2191;'; // Up arrow (green)
+                priceArrow.style.color = 'green';
+            } else {
+                priceArrow.innerHTML = '&#x2193;'; // Down arrow (red)
+                priceArrow.style.color = 'red';
+            }
+
+            predictedPriceBox.appendChild(priceArrow);
+
+            // Decision logic: If the predicted price is higher, Buy is correct; otherwise, Sell is correct
+            let feedbackMessage = '';
+            if (choice === 'buy') {
+                if (parseFloat(predictedPrice) > parseFloat(currentPrice)) {
+                    feedbackMessage = '<p style="color:green;">Congratulations!! You made the Correct choice. The price is expected to go up. Go buy the Stock</p>';
+                } else {
+                    feedbackMessage = '<p style="color:red;">Sorry!! You made the Incorrect choice. The price is expected to go down. It is better to Sell</p>';
+                }
+            } else if (choice === 'sell') {
+                if (parseFloat(predictedPrice) < parseFloat(currentPrice)) {
+                    feedbackMessage = '<p style="color:green;">Congratulations!! You made the Correct choice! The price is expected to go down. Sell the stock</p>';
+                } else {
+                    feedbackMessage = '<p style="color:red;">Sorry!! You made the Incorrect choice. The price is expected to go up. it is better to Buy</p>';
+                }
+            }
+
+            // Display feedback
+            feedbackElement.innerHTML = feedbackMessage;
+        }
+    </script>
+</body>
+</html>
