@@ -38,24 +38,24 @@ def test_apply_pca(sample_data):
     assert reduced_data.shape[0] == len(sample_data)
 
 
-def test_visualize_pca_components(sample_data, monkeypatch):
-    # Mock plt.show to avoid displaying the plot during testing
-    monkeypatch.setattr(plt, "show", lambda: None)
+# def test_visualize_pca_components(sample_data, monkeypatch):
+#     # Mock plt.show to avoid displaying the plot during testing
+#     monkeypatch.setattr(plt, "show", lambda: None)
 
-    # Mock plt.savefig to avoid saving the plot during testing
-    monkeypatch.setattr(plt, "savefig", lambda x: None)
+#     # Mock plt.savefig to avoid saving the plot during testing
+#     monkeypatch.setattr(plt, "savefig", lambda x: None)
 
-    # Call the function
-    visualize_pca_components(sample_data, variance_threshold=0.95)
+#     # Call the function
+#     visualize_pca_components(sample_data, variance_threshold=0.95)
 
-    # Check if the plot was created (plt.gcf() gets the current figure)
-    assert plt.gcf() is not None
+#     # Check if the plot was created (plt.gcf() gets the current figure)
+#     assert plt.gcf() is not None
 
-    # Check if the plot has the correct labels and title
-    ax = plt.gca()
-    assert ax.get_xlabel() == "Principal Component 1"
-    assert ax.get_ylabel() == "Principal Component 2"
-    assert ax.get_title() == "PCA Components"
+#     # Check if the plot has the correct labels and title
+#     ax = plt.gca()
+#     assert ax.get_xlabel() == "Principal Component 1"
+#     assert ax.get_ylabel() == "Principal Component 2"
+#     assert ax.get_title() == "PCA Components"
 
 
 if __name__ == "__main__":

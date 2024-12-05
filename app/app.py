@@ -6,10 +6,8 @@ from google.cloud import aiplatform
 import numpy as np
 import os
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = (
-    "../../StockPricePrediction/GCP/application_default_credentials.json"
-)
 
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "GCP/application_default_credentials.json"
 app = Flask(__name__)
 
 # Google Cloud Vertex AI settings
