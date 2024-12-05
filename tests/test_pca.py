@@ -13,10 +13,10 @@ from dags.src.pca import apply_pca, visualize_pca_components
 @pytest.fixture
 def sample_data():
     np.random.seed(42)
-    dates = pd.date_range(start="2021-01-01", periods=100)
+    # dates = pd.date_range(start="2021-01-01", periods=100)
     data = pd.DataFrame(
         {
-            "date": dates,
+            # "date": dates,
             "feature1": np.random.randn(100),
             "feature2": np.random.randn(100),
             "feature3": np.random.randn(100),
