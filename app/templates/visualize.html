@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            overflow-y: auto; /* Enable vertical scrolling */
+            height: 100vh; /* Full viewport height */
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 20px;
+        }
+        .graph-container {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -13,7 +27,12 @@
     <div class="container">
         <div class="graph-container">
             <!-- Placeholder for the generated stock graph -->
-            {{ stock_graph|safe }}
+            {{ stock_graph1|safe }}
+        </div>
+
+        <div class="graph-container">
+            <!-- Placeholder for the generated stock graph -->
+            {{ stock_graph2|safe }}
         </div>
 
         <p>Now, that we have a good understanding of Google Stock price data, press the button below to get the predicted price</p>
@@ -22,9 +41,10 @@
         </a>
     </div>
 
-    <footer>
+    <div class="centered-content">
         <h4>Group 10 - Stock Price Predictor</h4>
         <h4>Fall 2024: IE 7374 Machine Learning Operations</h4>
-    </footer>
+        <br>
+    </div>
 </body>
 </html>

@@ -5,6 +5,17 @@ import plotly.io as pio
 from google.cloud import aiplatform
 import numpy as np
 import os
+import pandas as pd
+import joblib
+
+from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
+from sklearn.linear_model import Ridge
+from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.pipeline import Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.inspection import permutation_importance
+from sklearn.utils import resample
+import plotly.graph_objs as go
 
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "GCP/application_default_credentials.json"
@@ -133,17 +144,104 @@ def generate_plotly_graph():
     return pio.to_html(fig, full_html=False)
 
 
+def predict_linear_regression():
+    data_test = pd.read_csv("pipeline/airflow/dags/data/scaled_data_test.csv")
+    # load best model
+    best_model = joblib.load("artifacts/models/best_linear_regression_model.joblib")
+    # print(f"best model: {best_model}")
+
+    # data_test is scaled data
+    date_test = data_test["date"]
+    X_test = data_test.drop(columns=["date", "close"])
+    y_test = data_test["close"]
+
+    pred_metrics = {}
+
+    # Predict using best model
+    linear_regression_best_model = {}
+    model_name = "Ridge Regression"
+    y_pred = best_model.predict(X_test)
+
+    # Evaluate the best model on the test set (hold-out dataset)
+    test_mse = mean_squared_error(y_test, y_pred)
+    test_rmse = np.sqrt(test_mse)
+    test_mae = mean_absolute_error(y_test, y_pred)
+    test_r2 = r2_score(y_test, y_pred)
+
+    pred_metrics[model_name] = {
+        "test_MSE": test_mse,
+        "test_RMSE": test_rmse,
+        "test_MAE": test_mae,
+        "test_R2": test_r2,
+    }
+
+    # Store the trained model for plotting later
+    linear_regression_best_model[model_name] = best_model
+
+    # Plot Actual vs Predicted for each model
+    # plot_actual_vs_predicted_interactive(model_name, date_test, y_pred, y_test)
+
+    return pred_metrics, linear_regression_best_model, y_test, y_pred
+
+
+def plot_actual_vs_predicted_interactive():
+    data_test = pd.read_csv("pipeline/airflow/dags/data/scaled_data_test.csv")
+    date_test = data_test["date"]
+
+    model_name = "Ridge Regression"
+
+    _, _, y_test, y_pred = predict_linear_regression()
+
+    fig = go.Figure()
+
+    # Add actual values
+    fig.add_trace(
+        go.Scatter(
+            x=date_test,
+            y=y_test.values.flatten(),
+            mode="lines",
+            name="Actual",
+            line=dict(color="black", width=2),
+            hovertemplate="Date: %{x}<br>Actual: %{y}<extra></extra>",
+        )
+    )
+
+    # Add predicted values
+    fig.add_trace(
+        go.Scatter(
+            x=date_test,
+            y=y_pred.flatten(),
+            mode="lines",
+            name=f"Predicted ({model_name})",
+            line=dict(dash="dash"),
+            hovertemplate="Date: %{x}<br>Predicted: %{y}<extra></extra>",
+        )
+    )
+
+    # Update layout
+    fig.update_layout(
+        title="Actual vs Predicted Values",
+        xaxis_title="Date",
+        yaxis_title="Close Value",
+        legend=dict(x=0, y=1),
+        hovermode="x unified",
+    )
+    # save the plot
+    # fig.write_html("artifacts/actual_vs_predicted_interactive.html")
+    return pio.to_html(fig, full_html=False)
+
+
 # Home page
 @app.route("/")
 def home():
     return render_template("home.html")
 
 
-# Visualization page
 @app.route("/visualize")
 def visualize():
-    stock_graph = generate_plotly_graph()
-    return render_template("visualize.html", stock_graph=stock_graph)
+    stock_graph1 = generate_plotly_graph()
+    stock_graph2 = plot_actual_vs_predicted_interactive()  # Generate a second graph
+    return render_template("visualize.html", stock_graph1=stock_graph1, stock_graph2=stock_graph2)
 
 
 # Prediction page

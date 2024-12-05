@@ -7,7 +7,7 @@ import sys
 
 # Add the src directory to the Python path
 sys.path.append(os.path.abspath("pipeline/airflow"))
-from dags.src.pca import apply_pca, visualize_pca_components
+from dags.src.pca import apply_pca
 
 
 @pytest.fixture
