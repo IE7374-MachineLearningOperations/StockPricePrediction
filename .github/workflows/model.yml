@@ -95,9 +95,13 @@ jobs:
       uses: actions/github-script@v5
       with:
         script: |
+          if (!context.issue || !context.issue.number) {
+            console.log("Error: context.issue.number is undefined. Available context:", context);
+            throw new Error("Cannot create comment: context.issue.number is not defined.");
+          }
           github.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
             body: 'Model training has been completed successfully!'
-          })
+          });
