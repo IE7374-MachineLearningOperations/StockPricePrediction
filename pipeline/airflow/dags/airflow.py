@@ -228,7 +228,7 @@ upload_blob_task = PythonOperator(
     >> upload_blob_task
     >> send_email_task
 )
-
+# Define the task order
 # If this script is run directly, allow command-line interaction with the DAG
 if __name__ == "__main__":
     print("DAG is being run directly...")
