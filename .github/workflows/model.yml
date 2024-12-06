@@ -26,7 +26,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.10'
-
     # Step 4: Create `trainer` package
     - name: Create Trainer Package
       run: |
@@ -89,7 +88,7 @@ jobs:
           --display-name=model-training \
           --args="--data-path=gs://${{ secrets.GCS_BUCKET_NAME }}/data/training_data.csv --epochs=10 --batch-size=32" \
           --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/trainer/trainer-0.1.tar.gz \
-          --worker-pool-spec="machine-type=e2-standard-4,executor-image-uri=us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-9:latest"
+          --worker-pool-spec="machine-type=e2-standard-4,executor-image-uri=us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-9:latest,python-module=trainer.task"
 
     # Step 8: Notify Completion
     - name: Notify Completion
