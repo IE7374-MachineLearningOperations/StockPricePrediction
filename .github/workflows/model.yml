@@ -96,12 +96,14 @@ jobs:
       with:
         script: |
           if (!context.issue || !context.issue.number) {
-            console.log("Error: context.issue.number is undefined. Available context:", context);
+            console.log("Error: context.issue.number is undefined.");
             throw new Error("Cannot create comment: context.issue.number is not defined.");
           }
-          github.issues.createComment({
-            issue_number: context.issue.number,
+
+          github.repos.createCommitComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
+            commit_sha: context.sha,
             body: 'Model training has been completed successfully!'
           });
+
