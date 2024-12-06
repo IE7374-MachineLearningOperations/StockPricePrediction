@@ -20,17 +20,13 @@ jobs:
 
     - name: Train models on Vertex AI
       run: |
-        gcloud config set project ${{ secrets.GOOGLE_CLOUD_PROJECT }}
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
         gcloud ai custom-jobs create \
           --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
           --display-name=model-training \
           --args="--input-data=gs://${{ secrets.GCS_BUCKET_NAME }}/Data/pipeline/airflow/dags/data/final_scaled_data.csv" \
           --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/gcp_deploy/best_model.py \
-          --python-module=trainer.train_model \
-          --runtime-version=2.5 \
-          --python-version=3.7 \
-          --machine-type=n1-standard-4
-
+          --worker-pool-spec="machine-type=n1-standard-4,python-version=3.7,executor-image-uri=us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-5:latest,local-package-path=./trainer" \
     - name: Notify completion
       uses: actions/github-script@v5
       with:
