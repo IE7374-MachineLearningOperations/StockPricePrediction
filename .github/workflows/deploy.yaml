@@ -9,7 +9,7 @@ on:
 jobs:
   deploy-and-monitor:
     runs-on: ubuntu-22.04
-
+    
     steps:
     # Step 1: Checkout Code
     - name: Checkout Code
@@ -25,12 +25,18 @@ jobs:
 
     # Step 3: Deploy Model to Vertex AI
     - name: Deploy Model to Vertex AI
+      env:
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
       run: |
         echo "Deploying model to Vertex AI..."
         gcloud ai endpoints create \
           --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
           --display-name=my-model-endpoint
-        ENDPOINT_ID=$(gcloud ai endpoints list --region=${{ secrets.GOOGLE_CLOUD_REGION }} --filter="display_name=my-model-endpoint" --format="value(name)")
+
+        ENDPOINT_ID=$(gcloud ai endpoints list \
+          --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+          --filter="display_name=my-model-endpoint" \
+          --format="value(name)")
         echo "Endpoint ID: $ENDPOINT_ID"
 
         echo "Deploying model to endpoint..."
@@ -39,6 +45,7 @@ jobs:
           --model=${{ secrets.MODEL_ID }} \
           --display-name=my-model-deployment \
           --machine-type=n1-standard-4
+
         echo "Model deployed successfully!"
 
     # Step 4: Monitor Deployment Status
