@@ -92,18 +92,21 @@ jobs:
 
     # Step 8: Notify Completion
     - name: Notify Completion
-      uses: actions/github-script@v5
-      with:
-        script: |
-          if (!context.issue || !context.issue.number) {
-            console.log("Error: context.issue.number is undefined.");
-            throw new Error("Cannot create comment: context.issue.number is not defined.");
-          }
+      run: |
+          echo "Model Training on Vertex AI is starting..."
+          echo "Preparing to notify about model training completion."
+          console.log("Starting notification process...");
+          const message = "Model training has been completed on Vertex AI! The trained model is now available for use.";
+          
+          # if (context.issue && context.issue.number) {
+          #   github.issues.createComment({
+          #     owner: context.repo.owner,
+          #     repo: context.repo.repo,
+          #     issue_number: context.issue.number,
+          #     body: 'Model training has been completed successfully!'
+          #   });
+          # } else {
+          #   console.log("No issue context available. Model training success");
+          # }
 
-          github.repos.createCommitComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            commit_sha: context.sha,
-            body: 'Model training has been completed successfully!'
-          });
 
