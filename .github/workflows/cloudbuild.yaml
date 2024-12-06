@@ -1,78 +1,65 @@
-steps:
-  # Step 1: Clone the repository
-  - name: 'gcr.io/cloud-builders/git'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        git clone https://github.com/IE7374-MachineLearningOperations/StockPricePrediction.git &&
-        cd StockPricePrediction &&
-        echo "Repository cloned successfully"
+name: Python Test and Deployment Workflow
 
-  # Step 2: Upload specific files to GCP Bucket
-  - name: 'gcr.io/cloud-builders/gsutil'
-    args:
-      - '-m'
-      - 'cp'
-      - '-r'
-      - 'StockPricePrediction/*.py'
-      - 'StockPricePrediction/*.ipynb'
-      - 'StockPricePrediction/*.pkl'
-      - 'gs://stock_price_prediction_dataset/'
+on:
+  push:
+    branches:
+      - main
+      - citest
 
-  # Step 3: Install dependencies
-  - name: 'gcr.io/cloud-builders/pip'
-    args:
-      - 'install'
-      - '-r'
-      - 'StockPricePrediction/requirements.txt'
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
 
-#   # Step 4: Train the model
-#   - name: 'gcr.io/cloud-builders/python'
-#     args:
-#       - 'StockPricePrediction/train.py'
-
-#   # Step 5: Validate the model
-#   - name: 'gcr.io/cloud-builders/python'
-#     args:
-#       - 'StockPricePrediction/validate.py'
-
-#   # Step 6: Conditional deployment if validation is successful
-#   - name: 'gcr.io/cloud-builders/bash'
-#     id: 'Check Validation'
-#     args:
-#       - '-c'
-#       - |
-#         ACCURACY=$(python StockPricePrediction/validate.py --get_accuracy) &&
-#         if (( $(echo "$ACCURACY > 0.70" | bc -l) )); then
-#           echo "Model accuracy is sufficient, proceeding with deployment";
-#         else
-#           echo "Model accuracy is insufficient, stopping deployment";
-#           exit 1;
-#         fi
-
-#   # Step 7: Save the trained model to GCP Bucket
-#   - name: 'gcr.io/cloud-builders/gsutil'
-#     args:
-#       - 'cp'
-#       - 'StockPricePrediction/models/*.h5'
-#       - 'gs://stock_price_prediction_dataset/trained_models/'
-
-#   # Step 8: Run Unit Tests
-#   - name: 'gcr.io/cloud-builders/python'
-#     args:
-#       - '-m'
-#       - 'unittest'
-#       - 'discover'
-#       - '-s'
-#       - 'StockPricePrediction/tests'
-
-# artifacts:
-#   objects:
-#     location: 'gs://stock_price_prediction_dataset/artifacts/'
-#     paths:
-#       - 'StockPricePrediction/*.py'
-#       - 'StockPricePrediction/*.ipynb'
-#       - 'StockPricePrediction/*.h5'
-
-# timeout: '1200s'
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+    
+      # Step 2: Set up Python environment and install dependencies
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+    
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+    
+      # Step 3: Run tests and handle test artifacts
+      - name: Run tests with coverage
+        run: |
+          pip install coverage
+          coverage run -m pytest
+          coverage report
+          coverage xml -o coverage.xml
+    
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage.xml
+    
+      # Step 4: Build and push Docker images
+      - name: Build Docker image
+        run: docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-app:${{ github.sha }} .
+    
+      - name: Log in to Google Container Registry
+        run: echo ${{ secrets.GCR_JSON_KEY }} | docker login -u _json_key --password-stdin https://gcr.io
+    
+      - name: Push Docker image
+        run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-app:${{ github.sha }}
+    
+      # Step 5: Deploy to Google Cloud (example with GKE)
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
+    
+      - name: Get GKE credentials
+        run: gcloud container clusters get-credentials my-cluster --zone us-east1-a
+    
+      - name: Deploy to GKE
+        run: kubectl set image deployment/my-app my-app=gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-app:${{ github.sha }}
