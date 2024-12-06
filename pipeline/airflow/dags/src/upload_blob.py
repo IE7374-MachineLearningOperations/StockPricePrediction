@@ -74,4 +74,4 @@ if __name__ == "__main__":
     technical_indicators_data = add_technical_indicators(feature_interactions_data)
     scaled_data = scaler(technical_indicators_data)
     upload_blob(scaled_data)
-    print("done!!")
+    # print("done!!")
