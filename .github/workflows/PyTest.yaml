@@ -1,74 +1,74 @@
-# name: Python Test Workflow
+name: Python Test Workflow
 
-# on:
-#   push:
-#     branches:
-#       - main
-#       - citest
+on:
+  push:
+    branches:
+      - main
+      - citest
 
-# jobs:
-#   test:
-#     runs-on: ubuntu-latest
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-#     steps:
-#       # Step 1: Checkout the repository
-#       - name: Checkout repository
-#         uses: actions/checkout@v2
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-#       # Step 2: Set up Python environment
-#       - name: Set up Python
-#         uses: actions/setup-python@v2
-#         with:
-#           python-version: '3.10'
+      # Step 2: Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
 
-#       # Step 3: Install dependencies
-#       - name: Install dependencies
-#         run: |
-#           python -m pip install --upgrade pip
-#           pip install -r pipeline/requirements.txt
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r pipeline/requirements.txt
 
-#       # Step 4: Run tests and generate coverage report
-#       - name: Run tests 
-#         run: |
-#           pip install coverage
-#           coverage run -m pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
-#           coverage html
+      # Step 4: Run tests and generate coverage report
+      - name: Run tests 
+        run: |
+          pip install coverage
+          coverage run -m pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
+          coverage html
       
-#       # Step 5: Upload coverage report as artifact
-#       - name: Upload coverage report
-#         if: always()
-#         uses: actions/upload-artifact@v4
-#         with:
-#           name: coverage-report
-#           path: htmlcov/
+      # Step 5: Upload coverage report as artifact
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
 
-#       # Step 6: Install Google Cloud CLI
-#       - name: Install Google Cloud CLI
-#         run: |
-#           sudo apt-get update
-#           sudo apt-get install -y google-cloud-cli
+      # Step 6: Install Google Cloud CLI
+      - name: Install Google Cloud CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-cli
 
-#       # Step 7: Decode GCP Service Account Key
-#       - name: Decode and Write GCP Service Account Key
-#         run: |
-#           echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > /tmp/gcp-key.json
-#         shell: bash
+      # Step 7: Decode GCP Service Account Key
+      - name: Decode and Write GCP Service Account Key
+        run: |
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > /tmp/gcp-key.json
+        shell: bash
 
-#       # Step 8: Authenticate with GCP using the Temporary File
-#       - name: Authenticate with GCP
-#         env:
-#           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
-#         run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+      # Step 8: Authenticate with GCP using the Temporary File
+      - name: Authenticate with GCP
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
+        run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
-#       # Step 9: Set GCP Project ID
-#       - name: Set GCP Project ID
-#         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+      # Step 9: Set GCP Project ID
+      - name: Set GCP Project ID
+        run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
-#       # Step 10: Upload coverage report to GCP bucket
-#       - name: Upload coverage report to GCP bucket
-#         env:
-#           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
-#         run: |
-#            CURRENT_DATE=$(date +"%Y-%m-%d")
-#            zip -r coverage-report.zip htmlcov/
-#            gsutil -m cp coverage-report.zip gs://${GCS_BUCKET_NAME}/Pytest-reports/${CURRENT_DATE}/coverage-report.zip
+      # Step 10: Upload coverage report to GCP bucket
+      - name: Upload coverage report to GCP bucket
+        env:
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+        run: |
+           CURRENT_DATE=$(date +"%Y-%m-%d")
+           zip -r coverage-report.zip htmlcov/
+           gsutil -m cp coverage-report.zip gs://${GCS_BUCKET_NAME}/Pytest-reports/${CURRENT_DATE}/coverage-report.zip
