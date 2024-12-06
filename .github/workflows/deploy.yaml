@@ -14,40 +14,38 @@ jobs:
     # Step 1: Checkout Code
     - name: Checkout Code
       uses: actions/checkout@v3
-
-    # Step 2: Set up Google Cloud SDK
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
+      
+ # Step 2: Set up Google Cloud SDK
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
         export_default_credentials: true
 
-    # Step 3: Deploy Model to Vertex AI
+    # Step 3: Deploy in Vertex AI
     - name: Deploy Model to Vertex AI
-      env:
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
       run: |
-        echo "Deploying model to Vertex AI..."
-        gcloud ai endpoints create \
-          --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
-          --display-name=my-model-endpoint
+          echo "Deploying model to Vertex AI..."
+          gcloud ai endpoints create \
+            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+            --display-name=mlops-group10-deploy
 
-        ENDPOINT_ID=$(gcloud ai endpoints list \
-          --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
-          --filter="display_name=my-model-endpoint" \
-          --format="value(name)")
-        echo "Endpoint ID: $ENDPOINT_ID"
+          ENDPOINT_ID=$(gcloud ai endpoints list \
+            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+            --filter="display_name=mlops-group10-deploy" \
+            --format="value(name)")
+          echo "Endpoint ID: $ENDPOINT_ID"
 
-        echo "Deploying model to endpoint..."
-        gcloud ai endpoints deploy-model $ENDPOINT_ID \
-          --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
-          --model=${{ secrets.MODEL_ID }} \
-          --display-name=my-model-deployment \
-          --machine-type=n1-standard-4
+          echo "Deploying model to endpoint..."
+          gcloud ai endpoints deploy-model $ENDPOINT_ID \
+            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+            --model=3792457496757534720 \
+            --display-name=mlops-group10-deploy \
+            --machine-type=n1-standard-4
 
-        echo "Model deployed successfully!"
-
+          echo "Model deployed successfully to endpoint $ENDPOINT_ID!
+          
     # Step 4: Monitor Deployment Status
     - name: Monitor Deployment Status
       run: |
