@@ -50,9 +50,9 @@ jobs:
       - name: Push Docker image
         run: docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/my-app:${{ github.sha }}
     
-      # Step 5: Deploy to Google Cloud (example with GKE)
+      # Step 5: Deploy to Google Cloud 
       - name: Set up Google Cloud SDK
-        uses: google-github-actions/setup-gcloud@latest
+        uses: google-github-actions/setup-gcloud@v0.2.0
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
