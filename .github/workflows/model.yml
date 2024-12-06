@@ -20,13 +20,14 @@ jobs:
 
     - name: Train models on Vertex AI
       run: |
-        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-        gcloud ai custom-jobs create \
-          --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
-          --display-name=model-training \
-          --args="--input-data=gs://${{ secrets.GCS_BUCKET_NAME }}/Data/pipeline/airflow/dags/data/final_scaled_data.csv" \
-          --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/gcp_deploy/best_model.py \
-          --worker-pool-spec="machine-type=n1-standard-4,python-version=3.7,executor-image-uri=us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-5:latest,local-package-path=./trainer" \
+       gcloud ai custom-jobs create \
+        --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+        --display-name=model-training \
+        --args="--input-data=gs://${{ secrets.GCS_BUCKET_NAME }}/Data/pipeline/airflow/dags/data/final_scaled_data.csv" \
+        --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/gcp_deploy/best_model.py \
+        --worker-pool-spec="machine-type=e2-standard-4,container-image-uri=us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-5:latest,local-package-path=./trainer"
+      
+
     - name: Notify completion
       uses: actions/github-script@v5
       with:
@@ -35,5 +36,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'Model training has been completed 🚀'
+            body: 'Model training has been completed'
           })
