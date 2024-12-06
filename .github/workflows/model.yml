@@ -9,14 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2  # Checks-out your repository under $GITHUB_WORKSPACE
+      uses: actions/checkout@v2 
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.2.0
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        export_default_credentials: true  # Automatically export credentials after setup
+        export_default_credentials: true  
 
     - name: Train models on Vertex AI
       run: |
