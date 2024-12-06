@@ -1,34 +1,98 @@
-name: Train Machine Learning Model on GCP
+name: Train ML Model
 
 on:
   push:
     branches:
-      - citest 
+      - citest
+
 jobs:
   setup-and-deploy:
     runs-on: ubuntu-latest
     steps:
+    # Step 1: Checkout code
     - name: Checkout code
-      uses: actions/checkout@v2 
+      uses: actions/checkout@v2
 
+    # Step 2: Set up Google Cloud SDK
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v0.2.0
       with:
         project_id: ${{ secrets.GCP_PROJECT_ID }}
         service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
-        export_default_credentials: true  
+        export_default_credentials: true
 
-    - name: Train models on Vertex AI
+    # Step 3: Verify Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.10
+
+    # Step 4: Create `trainer` package
+    - name: Create Trainer Package
       run: |
-       gcloud ai custom-jobs create \
-        --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
-        --display-name=model-training \
-        --args="--input-data=gs://${{ secrets.GCS_BUCKET_NAME }}/Data/pipeline/airflow/dags/data/final_scaled_data.csv" \
-        --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/gcp_deploy/best_model.py \
-        --worker-pool-spec="machine-type=e2-standard-4,container-image-uri=us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-5:latest,local-package-path=./trainer"
-      
+        mkdir -p trainer
+        echo " " > trainer/__init__.py
+        cat << EOF > trainer/task.py
+        import tensorflow as tf
+        import argparse
 
-    - name: Notify completion
+        def train_model(data_path, epochs, batch_size):
+            dataset = tf.data.experimental.CsvDataset(data_path, [tf.float32, tf.float32])
+            dataset = dataset.batch(batch_size)
+            model = tf.keras.Sequential([
+                tf.keras.layers.Dense(10, activation='relu', input_shape=(1,)),
+                tf.keras.layers.Dense(1)
+            ])
+            model.compile(optimizer='adam', loss='mean_squared_error')
+            model.fit(dataset, epochs=epochs)
+            model.save('model_output')
+            print("Model saved to 'model_output/'")
+
+        if __name__ == "__main__":
+            parser = argparse.ArgumentParser()
+            parser.add_argument('--data-path', type=str, required=True, help='Path to training data')
+            parser.add_argument('--epochs', type=int, default=10, help='Number of training epochs')
+            parser.add_argument('--batch-size', type=int, default=32, help='Batch size for training')
+            args = parser.parse_args()
+            train_model(args.data_path, args.epochs, args.batch_size)
+        EOF
+
+        cat << EOF > setup.py
+        from setuptools import find_packages, setup
+        setup(
+            name='trainer',
+            version='0.1',
+            packages=find_packages(),
+            install_requires=['tensorflow>=2.0'],
+            entry_points={
+                'console_scripts': ['trainer = trainer.task:main'],
+            },
+        )
+        EOF
+
+    # Step 5: Package the Trainer Code
+    - name: Package Trainer
+      run: |
+        python setup.py sdist
+
+    # Step 6: Upload Package to GCS
+    - name: Upload Trainer Package to GCS
+      run: |
+        gsutil cp dist/trainer-0.1.tar.gz gs://${{ secrets.GCS_BUCKET_NAME }}/trainer/trainer-0.1.tar.gz
+
+    # Step 7: Trigger Vertex AI Custom Job
+    - name: Trigger Vertex AI Training Job
+      run: |
+        gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+        gcloud ai custom-jobs create \
+          --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+          --display-name=model-training \
+          --args="--data-path=gs://${{ secrets.GCS_BUCKET_NAME }}/data/training_data.csv --epochs=10 --batch-size=32" \
+          --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/trainer/trainer-0.1.tar.gz \
+          --worker-pool-spec="machine-type=e2-standard-4,executor-image-uri=us-docker.pkg.dev/vertex-ai/training/tf-cpu.2-9:latest"
+
+    # Step 8: Notify Completion
+    - name: Notify Completion
       uses: actions/github-script@v5
       with:
         script: |
@@ -36,5 +100,5 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: 'Model training has been completed'
+            body: 'Model training has been completed successfully!'
           })
