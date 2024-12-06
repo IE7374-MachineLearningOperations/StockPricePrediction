@@ -33,7 +33,8 @@ jobs:
           pip install coverage
           coverage run -m pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
           coverage html
-      
+          coverage xml  # Generate XML report
+
       # Step 5: Upload coverage report as artifact
       - name: Upload coverage report
         if: always()
@@ -42,33 +43,42 @@ jobs:
           name: coverage-report
           path: htmlcov/
 
-      # Step 6: Install Google Cloud CLI
+      # Step 6: Upload XML coverage report as artifact
+      - name: Upload XML coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-xml
+          path: coverage.xml
+
+      # Step 7: Install Google Cloud CLI
       - name: Install Google Cloud CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y google-cloud-cli
 
-      # Step 7: Decode GCP Service Account Key
+      # Step 8: Decode GCP Service Account Key
       - name: Decode and Write GCP Service Account Key
         run: |
           echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > /tmp/gcp-key.json
         shell: bash
 
-      # Step 8: Authenticate with GCP using the Temporary File
+      # Step 9: Authenticate with GCP using the Temporary File
       - name: Authenticate with GCP
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
         run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
 
-      # Step 9: Set GCP Project ID
+      # Step 10: Set GCP Project ID
       - name: Set GCP Project ID
         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
-      # Step 10: Upload coverage report to GCP bucket
-      - name: Upload coverage report to GCP bucket
+      # Step 11: Upload coverage reports to GCP bucket
+      - name: Upload coverage reports to GCP bucket
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
            CURRENT_DATE=$(date +"%Y-%m-%d")
            zip -r coverage-report.zip htmlcov/
            gsutil -m cp coverage-report.zip gs://${GCS_BUCKET_NAME}/Pytest-reports/${CURRENT_DATE}/coverage-report.zip
+           gsutil cp coverage.xml gs://${GCS_BUCKET_NAME}/Pytest-reports/${CURRENT_DATE}/coverage.xml

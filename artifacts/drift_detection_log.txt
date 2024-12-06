@@ -1,0 +1,158 @@
+Drift Detection Insights:
+{
+    "timestamp": "2024-12-05 23:13:22.955517",
+    "feature": "volume",
+    "mean": -0.26517958220610105,
+    "variance": 0.36811363476801023,
+    "25th_percentile": -0.7102497399264447,
+    "50th_percentile": -0.37641044271688173,
+    "75th_percentile": -0.018185486220039272
+}
+{
+    "feature": "volume",
+    "drift_detected": true,
+    "drift_details": {
+        "mean_diff": 1.0832335602303248e+16,
+        "variance_diff": 0.5911609980397395,
+        "25th_percentile_diff": 0.1935815831745219,
+        "50th_percentile_diff": 0.5217538251209779,
+        "75th_percentile_diff": 1.0661907266219717
+    }
+}
+{
+    "timestamp": "2024-12-05 23:13:22.958786",
+    "feature": "RSI",
+    "mean": -0.26844658856493175,
+    "variance": 0.48970973203489,
+    "25th_percentile": -0.7727840780408802,
+    "50th_percentile": -0.3289493590289575,
+    "75th_percentile": 0.37713368183964113
+}
+{
+    "feature": "RSI",
+    "drift_detected": true,
+    "drift_details": {
+        "mean_diff": 3310427087695573.0,
+        "variance_diff": 0.45611240881760007,
+        "50th_percentile_diff": 12.388300565591491,
+        "75th_percentile_diff": 0.4691368326992533
+    }
+}
+{
+    "timestamp": "2024-12-05 23:13:22.961443",
+    "feature": "MACD",
+    "mean": 0.13977822785881205,
+    "variance": 0.21045564883975865,
+    "25th_percentile": -0.22981286968820075,
+    "50th_percentile": 0.015189928342711517,
+    "75th_percentile": 0.6040985239409699
+}
+{
+    "feature": "MACD",
+    "drift_detected": true,
+    "drift_details": {
+        "mean_diff": 4567846925364165.0,
+        "variance_diff": 0.7662610962976936,
+        "25th_percentile_diff": 0.4186847866949971,
+        "50th_percentile_diff": 3.6731712530470926,
+        "75th_percentile_diff": 0.169980653962794
+    }
+}
+{
+    "timestamp": "2024-12-05 23:13:22.965846",
+    "feature": "MA20",
+    "mean": 1.7276662837838308,
+    "variance": 0.00020199839965288517,
+    "25th_percentile": 1.725602329735603,
+    "50th_percentile": 1.7322157467483748,
+    "75th_percentile": 1.7345216001485086
+}
+{
+    "feature": "MA20",
+    "drift_detected": true,
+    "drift_details": {
+        "mean_diff": 8821692095898835.0,
+        "variance_diff": 0.9997756539929207,
+        "25th_percentile_diff": 3.0127924692515378,
+        "50th_percentile_diff": 5.612217246313641,
+        "75th_percentile_diff": 1.0665130527217235
+    }
+}
+{
+    "timestamp": "2024-12-05 23:13:22.968585",
+    "feature": "SP500_VIXCLS_ratio",
+    "mean": 2.873569339443173,
+    "variance": 0.013356434411980086,
+    "25th_percentile": 2.780136461892413,
+    "50th_percentile": 2.8403127682433835,
+    "75th_percentile": 2.912545232210282
+}
+{
+    "feature": "SP500_VIXCLS_ratio",
+    "drift_detected": true,
+    "drift_details": {
+        "mean_diff": 1.1738259485281422e+16,
+        "variance_diff": 0.9851659085700997,
+        "25th_percentile_diff": 4.846601340336032,
+        "50th_percentile_diff": 29.498714811345387,
+        "75th_percentile_diff": 2.9906162995722427
+    }
+}
+
+Final Drift Results:
+{
+    "volume": {
+        "feature": "volume",
+        "drift_detected": true,
+        "drift_details": {
+            "mean_diff": 1.0832335602303248e+16,
+            "variance_diff": 0.5911609980397395,
+            "25th_percentile_diff": 0.1935815831745219,
+            "50th_percentile_diff": 0.5217538251209779,
+            "75th_percentile_diff": 1.0661907266219717
+        }
+    },
+    "RSI": {
+        "feature": "RSI",
+        "drift_detected": true,
+        "drift_details": {
+            "mean_diff": 3310427087695573.0,
+            "variance_diff": 0.45611240881760007,
+            "50th_percentile_diff": 12.388300565591491,
+            "75th_percentile_diff": 0.4691368326992533
+        }
+    },
+    "MACD": {
+        "feature": "MACD",
+        "drift_detected": true,
+        "drift_details": {
+            "mean_diff": 4567846925364165.0,
+            "variance_diff": 0.7662610962976936,
+            "25th_percentile_diff": 0.4186847866949971,
+            "50th_percentile_diff": 3.6731712530470926,
+            "75th_percentile_diff": 0.169980653962794
+        }
+    },
+    "MA20": {
+        "feature": "MA20",
+        "drift_detected": true,
+        "drift_details": {
+            "mean_diff": 8821692095898835.0,
+            "variance_diff": 0.9997756539929207,
+            "25th_percentile_diff": 3.0127924692515378,
+            "50th_percentile_diff": 5.612217246313641,
+            "75th_percentile_diff": 1.0665130527217235
+        }
+    },
+    "SP500_VIXCLS_ratio": {
+        "feature": "SP500_VIXCLS_ratio",
+        "drift_detected": true,
+        "drift_details": {
+            "mean_diff": 1.1738259485281422e+16,
+            "variance_diff": 0.9851659085700997,
+            "25th_percentile_diff": 4.846601340336032,
+            "50th_percentile_diff": 29.498714811345387,
+            "75th_percentile_diff": 2.9906162995722427
+        }
+    }
+}

@@ -60,7 +60,7 @@ jobs:
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
         run: |
-          gsutil -m rsync -r . gs://${GCS_BUCKET_NAME}/
+          gsutil -m rsync -r . gs://${GCS_BUCKET_NAME}/GitHub/
 
       # Step 10: Verify Upload
       - name: Verify GCP Bucket Upload
