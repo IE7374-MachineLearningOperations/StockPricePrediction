@@ -24,8 +24,8 @@ jobs:
         gcloud ai custom-jobs create \
           --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
           --display-name=model-training \
-          --args="--input-data=gs://${{ secrets.GCS_BUCKET_NAME }}/data/Data_pipeline_airflow_dags_data_scaled_data_train.csv" \
-          --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/code/train_model.py \
+          --args="--input-data=gs://${{ secrets.GCS_BUCKET_NAME }}/Data/pipeline/airflow/dags/data/final_scaled_data.csv" \
+          --python-package-uris=gs://${{ secrets.GCS_BUCKET_NAME }}/gcp_deploy/best_model.py \
           --python-module=trainer.train_model \
           --runtime-version=2.5 \
           --python-version=3.7 \
