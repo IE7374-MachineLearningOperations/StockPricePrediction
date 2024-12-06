@@ -8,30 +8,53 @@
 </head>
 <body>
 
-    <header>
-        <h1>Stock Price Prediction App</h1>
+    <header class="container">
+        <h1 style="text-align: center;">Stock Price Predictor</h1>
     </header>
 
     <div class="container">
-        <p>Our innovative app helps you predict the next day's stock prices using Machine Learning. Currently, we are focusing on predicting the stock price of one of the most influential companies in the world: Google (GOOGL).</p>
-        
-        <h2>What We Do</h2>
-        <p>With our platform, we provide stock price predictions using historical data, technical indicators, and machine learning models trained on financial metrics. Our goal is to offer users insights into potential market movements and help make informed decisions.</p>
-        
-        <h2>Why Google?</h2>
-        <p>We chose to showcase Google because of its immense impact on global technology and financial markets. By accurately predicting GOOGL prices, we demonstrate the power of our prediction model.</p>
-        
-        <h2>How It Works</h2>
-        <p>Data for the stock price values were obtained from yfinance. Other macroeconomic indicators like Fama French factors, ADS index, SP500 and Fred api were also added to the data to improve predictive accuracy. Whether you're an investor or just interested in the market, our tool will give you a glimpse into the future of stock price movements.</p>
-        
+
+        <!-- Stock Predictor Tool Section -->
+        <div style="display: flex; align-items: center;">
+            <div style="flex: 1;">
+                <h2>Stock Predictor Tool</h2>
+                <p>A cutting-edge technology that delves deep into a realm of data, analyzing market trends, financial statements, and macroeconomic indicators to predict market trends and future stock prices. Leveraging advanced machine learning algorithms, it uncovers hidden patterns and insights from historical and real-time data. This tool empowers investors with actionable predictions, aiding smarter financial decisions. With an intuitive interface and reliable forecasts, it bridges the gap between complex data and meaningful investment strategies.</p>
+            </div>
+            <div style="flex: 0;">
+                <img src="https://miro.medium.com/v2/resize:fit:1400/format:webp/0*FfkEeNNoUKtzywCP.jpg" alt="Stock Predictor Tool" width="400px" height="200px" style="margin-left: 20px;">
+            </div>
+        </div>
+
+        <!-- Why Google Section -->
+        <div style="display: flex; align-items: center; margin-top: 30px;">
+            <div style="flex: 0;">
+                <img src="https://www.techmonitor.ai/wp-content/uploads/sites/29/2017/02/shutterstock_552493561.webp" alt="Google Logo" width="400px" height="200px" style="margin-right: 20px;">
+            </div>
+            <div style="flex: 1;">
+                <h2>Why Google?</h2>
+                <p>Google, a part of Alphabet Inc., is a global leader in technology with a market capitalization exceeding $1.5 trillion and annual revenues of over $280 billion (as of 2024). It dominates the search engine market with a 91% share and generates substantial revenue from platforms like YouTube, which earned over $40 billion in 2023. Its cloud computing segment, Google Cloud, grew by 30% year-over-year, showcasing immense growth potential. Backed by innovation in AI and emerging fields, Google offers a stable yet forward-looking investment opportunity.</p>
+            </div>
+        </div>
+
+        <!-- How We Do It Section -->
+        <div style="display: flex; align-items: center; margin-top: 30px;">
+            <div style="flex: 1;">
+                <h2>How we do it?</h2>
+                <p>Our analysis leverages data from Yahoo Finance to track Google stock trends and integrates financial and macroeconomic indicators like the Fama-French factors, ADS index, and S&P 500 for a holistic view. We utilize the FRED API to incorporate economic data, providing deeper insights into market dynamics. By combining stock data with macroeconomic factors, our app offers a comprehensive model to predict Google’s stock price with greater accuracy and reliability.</p>
+            </div>
+            <div style="flex: 0;">
+                <img src="https://tradepa.in/img/334-key-economic-indicator-20231218220851.webp" alt="How We Do It" width="400px" height="200px" style="margin-left: 20px;">
+            </div>
+        </div>
+
         <a href="{{ url_for('visualize') }}"></a>
             <button class="visualize-button" onclick="window.location.href='{{ url_for('visualize') }}'">Visualize</button>
         </a>
     </div>
 
-    <footer>
+    <div class="footer">
         <h4>Group 10 - Stock Price Predictor</h4>
         <h4>Fall 2024: IE 7374 Machine Learning Operations</h4>
-    </footer>
+    </div>
 </body>
 </html>

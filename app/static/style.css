@@ -30,18 +30,18 @@ button:hover {
     background-color: #00aaff; /* Lighter blue on hover */
 }
 
-footer {
+.footer {
     background-color: #1f2a38;
     color: #f0f0f0;
     text-align: center;
     padding: 15px 0;
-    position: fixed;
+    position: relative;
     width: 100%;
     bottom: 0;
 }
 
 .container {
-    margin: 50px;
+    margin: 80px;
 }
 
 .stock-graph {
