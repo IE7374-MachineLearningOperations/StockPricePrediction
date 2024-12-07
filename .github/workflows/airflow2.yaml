@@ -73,7 +73,17 @@ jobs:
         run: |
           docker-compose ps
 
-      - name: Wait for Airflow to Initialize
+      - name: Check Airflow Webserver Logs
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose logs airflow-webserver
+
+      - name: Wait for All Services to Become Healthy
+        working-directory: ./pipeline/airflow
+        run: |
+          timeout 600 bash -c 'until [ "$(docker-compose ps | grep -c "healthy")" -eq 6 ]; do sleep 10; done'
+
+      - name: Wait for Airflow Webserver to Be Ready
         working-directory: ./pipeline/airflow
         run: |
           timeout 600 bash -c 'until docker-compose exec -T airflow-webserver curl -f http://localhost:8080/health; do sleep 10; done'
@@ -142,4 +152,4 @@ jobs:
         if: always()
         working-directory: ./pipeline/airflow
         run: docker-compose down --volumes --rmi all
-    
+      
