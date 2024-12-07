@@ -117,21 +117,34 @@ services:
       retries: 50
     restart: always
 
+  # airflow-webserver:
+  #   <<: *airflow-common
+  #   command: webserver
+  #   ports:
+  #     - 8080:8080
+  #   healthcheck:
+  #     test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 5
+  #   restart: always
+  #   depends_on:
+  #     <<: *airflow-common-depends-on
+  #     airflow-init:
+  #       condition: service_completed_successfully
   airflow-webserver:
     <<: *airflow-common
     command: webserver
     ports:
-      - 8080:8080
+      - "8080:8080"
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      test: ["CMD-SHELL", "curl --fail http://localhost:8080/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 5
     restart: always
     depends_on:
-      <<: *airflow-common-depends-on
-      airflow-init:
-        condition: service_completed_successfully
+      - airflow-init
 
   airflow-scheduler:
     <<: *airflow-common
