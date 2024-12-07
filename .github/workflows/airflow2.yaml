@@ -51,6 +51,7 @@ jobs:
       - name: Start Airflow Services
         working-directory: ./pipeline/airflow
         run: |
+          docker-compose down --volumes --rmi all
           docker-compose up -d
 
       # # Step 6: Install Python packages inside Docker containers
