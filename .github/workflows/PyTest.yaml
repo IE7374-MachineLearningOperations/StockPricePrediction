@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
 
     steps:
       # Step 1: Checkout the repository
@@ -31,9 +31,9 @@ jobs:
       - name: Run tests 
         run: |
           pip install coverage
-          coverage run -m pytest pipeline/airflow/tests --maxfail=1 --disable-warnings
+          coverage run -m pytest pipeline/airflow/tests --maxfail=2 --disable-warnings
           coverage html
-          coverage xml  # Generate XML report
+          coverage xml
 
       # Step 5: Upload coverage report as artifact
       - name: Upload coverage report

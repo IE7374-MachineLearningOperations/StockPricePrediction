@@ -1,0 +1,83 @@
+name: Deploy and Monitor Vertex AI Model
+
+on:
+  push:
+    branches:
+      - main  
+      - citest
+
+jobs:
+  deploy-and-monitor:
+    runs-on: ubuntu-22.04
+    
+    steps:
+    # Step 1: Checkout Code
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      
+ # Step 2: Set up Google Cloud SDK
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        export_default_credentials: true
+
+    # Step 3: Deploy in Vertex AI
+    - name: Deploy Model to Vertex AI
+      run: |
+          echo "Deploying model to Vertex AI..."
+          gcloud ai endpoints create \
+            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+            --display-name=mlops-group10-deploy
+
+          ENDPOINT_ID=$(gcloud ai endpoints list \
+            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+            --filter="display_name=mlops-group10-deploy" \
+            --format="value(name)")
+          echo "Endpoint ID: $ENDPOINT_ID"
+
+          echo "Deploying model to endpoint..."
+          gcloud ai endpoints deploy-model $ENDPOINT_ID \
+            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+            --model=3792457496757534720 \
+            --display-name=mlops-group10-deploy \
+            --machine-type=n1-standard-4
+
+          echo "Model deployed successfully to endpoint $ENDPOINT_ID!"
+          
+    # Step 4: Monitor Deployment Status
+    - name: Monitor Deployment Status
+      run: |
+        echo "Monitoring deployment status..."
+        DEPLOYMENT_STATUS=$(gcloud ai endpoints describe $ENDPOINT_ID --region=${{ secrets.GOOGLE_CLOUD_REGION }} --format="value(deployedModels.state)")
+        echo "Deployment status: $DEPLOYMENT_STATUS"
+        if [[ "$DEPLOYMENT_STATUS" != "DEPLOYED" ]]; then
+          echo "Deployment failed or is incomplete. Status: $DEPLOYMENT_STATUS"
+          exit 1
+        fi
+        echo "Deployment is successful. Status: $DEPLOYMENT_STATUS"
+
+    # Step 5: Fetch Logs for Deployment
+    - name: Fetch Deployment Logs
+      run: |
+        echo "Fetching logs for deployment..."
+        gcloud logging read "resource.labels.endpoint_id=$ENDPOINT_ID" \
+          --format="table(timestamp, textPayload)" \
+          --limit=50
+
+    # Step 6: Notify Deployment Status
+    - name: Notify Deployment Status
+      uses: actions/github-script@v5
+      with:
+        script: |
+          const deploymentStatus = `DEPLOYED`;
+          const message = deploymentStatus === "DEPLOYED"
+            ? " Deployment to Vertex AI completed successfully!"
+            : " Deployment to Vertex AI failed. Check logs for details.";
+          github.repos.createCommitComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            commit_sha: context.sha,
+            body: message,
+          });

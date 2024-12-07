@@ -1,12 +1,21 @@
 .
+├── app
+│   ├── app.py
+│   ├── static
+│   │   └── style.css
+│   └── templates
+│       ├── home.html
+│       ├── predict.html
+│       └── visualize.html
+├── app.py
 ├── artifacts
+│   ├── actual_vs_predicted_interactive.html
+│   ├── bias_detection_metrics.txt
 │   ├── correlation_matrix_after_removing_correlated_features.png
-│   ├── ElasticNet.pkl
-│   ├── Feature Importance for ElasticNet on Test Set.png
-│   ├── Feature Importance for Lasso on Test Set.png
-│   ├── Feature Importance for Ridge on Test Set.png
-│   ├── Lasso.pkl
-│   ├── Ridge.pkl
+│   ├── drift_detection_log.txt
+│   ├── feature_importance.png
+│   ├── models
+│   │   └── best_linear_regression_model.joblib
 │   └── schema.pbtxt
 ├── assets
 │   ├── airflow_dags.jpeg
@@ -23,6 +32,7 @@
 │   ├── Data_split1.png
 │   ├── detail_one_run.png
 │   ├── detect_bias_log.png
+│   ├── Drift Detection logging.png
 │   ├── email_notification.jpeg
 │   ├── gantt.jpeg
 │   ├── gcp-artifcats.png
@@ -31,6 +41,7 @@
 │   ├── linear_reg_outputs.png
 │   ├── Linear Regression - Hyperparameter Sensitivity_ model__alpha.png
 │   ├── Linear Regression - Hyperparameter Sensitivity_ model__l1_ratio.png
+│   ├── Logging Dashboard.png
 │   ├── mlops10trigger.png
 │   ├── MLOps Group10 Diag.png
 │   ├── model_analysis_elasticNet.png
@@ -50,6 +61,7 @@
 │   │   ├── Airflow README.md
 │   │   ├── Notebooks README.md
 │   │   └── Project README.md
+│   ├── Model Deployment
 │   ├── Model development pipeline phase
 │   │   └── README.md
 │   └── Scoping Phase
@@ -119,26 +131,21 @@
 │   ├── README.md
 │   ├── striped-graph-440017-d7-79f99f8253bc.json
 │   └── synclocal.ipynb
+├── gcpdeploy
+│   └── src
+│       ├── serve
+│       │   └── model_serving.ipynb
+│       └── trainer
+│           ├── Dockerfile
+│           └── train.py
 ├── LICENSE
 ├── models
-│   ├── cleaned_data.csv
-│   ├── FeatureEng_and_ModelBiasDetn.ipynb
-│   ├── KNN.ipynb
-│   ├── linear_regression.ipynb
-│   ├── LSTM.ipynb
-│   ├── ML Models.ipynb
-│   ├── model_checkpoints_ElasticNet.pkl
-│   ├── model_checkpoints_Lasso.pkl
-│   ├── model_checkpoints_LSTM.pkl
-│   ├── model_checkpoints_Ridge.pkl
-│   ├── model_checkpoints_XGBoost.pkl
 │   ├── README.md
-│   ├── RF_Model.ipynb
-│   ├── SVM.ipynb
-│   ├── XGBoost.ipynb
-│   ├── X_test_split.csv
-│   ├── X_train_split.csv
-│   └── X_validation_split.csv
+│   └── src
+│       ├── linear_regression.py
+│       ├── model_bias_detection.py
+│       ├── model_sensitivity_analysis.py
+│       └── model_utils.py
 ├── pipeline
 │   ├── airflow
 │   │   ├── artifacts
@@ -158,6 +165,7 @@
 │   │   │   ├── data
 │   │   │   │   ├── ADS_index.csv
 │   │   │   │   ├── fama_french.csv
+│   │   │   │   ├── final_dataset_for_modeling.csv
 │   │   │   │   ├── FRED_Variables
 │   │   │   │   │   ├── AMERIBOR.csv
 │   │   │   │   │   ├── BAMLH0A0HYM2.csv
@@ -186,7 +194,10 @@
 │   │   │   │   │   ├── USRECDM.csv
 │   │   │   │   │   ├── USRECDP.csv
 │   │   │   │   │   └── VIXCLS.csv
-│   │   │   │   └── merged_original_dataset.csv
+│   │   │   │   ├── merged_original_dataset.csv
+│   │   │   │   ├── scaled_data_test.csv
+│   │   │   │   ├── scaled_data_train.csv
+│   │   │   │   └── unscaled_data_after_preprocessing.csv
 │   │   │   ├── requirements.txt
 │   │   │   └── src
 │   │   │       ├── convert_column_dtype.py
@@ -196,13 +207,6 @@
 │   │   │       ├── handle_missing.py
 │   │   │       ├── keep_latest_data.py
 │   │   │       ├── lagged_features.py
-│   │   │       ├── models
-│   │   │       │   ├── linear_regression.py
-│   │   │       │   ├── LSTM.py
-│   │   │       │   ├── model_bias_detection.py
-│   │   │       │   ├── model_sensitivity_analysis.py
-│   │   │       │   ├── model_utils.py
-│   │   │       │   └── XGBoost.py
 │   │   │       ├── pca.py
 │   │   │       ├── plot_yfinance_time_series.py
 │   │   │       ├── remove_weekend_data.py
@@ -210,12 +214,13 @@
 │   │   │       ├── technical_indicators.py
 │   │   │       └── upload_blob.py
 │   │   ├── docker-compose.yaml
+│   │   ├── Dockerfile
 │   │   ├── dvc.lock
 │   │   ├── dvc.yaml
 │   │   ├── images_push_to_gcp.sh
 │   │   ├── logs
 │   │   │   └── scheduler
-│   │   │       ├── latest -> /opt/airflow/logs/scheduler/2024-11-26
+│   │   │       ├── latest -> /opt/airflow/logs/scheduler/2024-12-04
 │   │   │       └── latest~HEAD
 │   │   ├── requirements.txt
 │   │   ├── tests
@@ -288,12 +293,14 @@
 │   │           │   └── wandb-summary.json
 │   │           └── run-z46bnrst.wandb
 │   ├── pipelinetree.txt
-│   └── README.md
+│   ├── README.md
+│   └── requirements.txt
 ├── README.md
 ├── README.md.dvc
 ├── requirements.txt
 ├── requirements.txt.dvc
 ├── src
+│   ├── Datadrift_detection.ipynb
 │   ├── data_preprocessing.ipynb
 │   ├── DataSchema_Stats.ipynb
 │   ├── FeatureEng_and_ModelBiasDetn.ipynb
@@ -307,6 +314,7 @@
 │   ├── RF_Model.ipynb
 │   ├── Stock_Price_Prediction_ML_Models.ipynb
 │   ├── Stocks_ML_Models.ipynb
+│   ├── Stocks_ML_Models_Updated_.ipynb
 │   ├── SVM.ipynb
 │   └── XGBoost.ipynb
 ├── src.dvc
@@ -325,4 +333,4 @@
     ├── test_scaler.py
     └── test_technical_indicators.py
 
-54 directories, 272 files
+63 directories, 271 files
