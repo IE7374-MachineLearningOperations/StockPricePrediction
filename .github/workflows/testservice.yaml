@@ -1,3 +1,10 @@
+name: Python Test Workflow
+
+on:
+  push:
+    branches:
+      - citest
+
 jobs:
   setup:
     runs-on: ubuntu-latest
