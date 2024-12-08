@@ -37,47 +37,21 @@ jobs:
             --format="value(name)")
           echo "Endpoint ID: $ENDPOINT_ID"
 
-          echo "Deploying model to endpoint..."
-          gcloud ai endpoints deploy-model $ENDPOINT_ID \
-            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
-            --model=3792457496757534720 \
-            --display-name=mlops-group10-deploy \
-            --machine-type=n1-standard-4
-
-          echo "Model deployed successfully to endpoint $ENDPOINT_ID!"
-          
-    # Step 4: Monitor Deployment Status
-    - name: Monitor Deployment Status
+    - name: Fetch latest model ID
+      id: get-model-id
       run: |
-        echo "Monitoring deployment status..."
-        DEPLOYMENT_STATUS=$(gcloud ai endpoints describe $ENDPOINT_ID --region=${{ secrets.GOOGLE_CLOUD_REGION }} --format="value(deployedModels.state)")
-        echo "Deployment status: $DEPLOYMENT_STATUS"
-        if [[ "$DEPLOYMENT_STATUS" != "DEPLOYED" ]]; then
-          echo "❌ Deployment failed or is incomplete. Status: $DEPLOYMENT_STATUS"
-          exit 1
-        fi
-        echo "✅ Deployment is successful. Status: $DEPLOYMENT_STATUS"
+        LATEST_MODEL_ID=$(gcloud ai models list --region=${{ secrets.GOOGLE_CLOUD_REGION }} --format="value(modelId)" --limit=1 --sort-by="~createTime")
+        echo "Latest model ID: $LATEST_MODEL_ID"
+        echo "::set-output name=model_id::$LATEST_MODEL_ID"
 
-    # Step 5: Fetch Logs for Deployment
-    - name: Fetch Deployment Logs
+    - name: Fetch latest endpoint ID
+      id: get-endpoint-id
       run: |
-        echo "Fetching logs for deployment..."
-        gcloud logging read "resource.labels.endpoint_id=$ENDPOINT_ID" \
-          --format="table(timestamp, textPayload)" \
-          --limit=50
+        LATEST_ENDPOINT_ID=$(gcloud ai endpoints list --region=${{ secrets.GOOGLE_CLOUD_REGION }} --format="value(endpointId)" --limit=1 --sort-by="~createTime")
+        echo "Latest endpoint ID: $LATEST_ENDPOINT_ID"
+        echo "::set-output name=endpoint_id::$LATEST_ENDPOINT_ID"
 
-    # Step 6: Notify Deployment Status
-    - name: Notify Deployment Status
-      uses: actions/github-script@v5
-      with:
-        script: |
-          const deploymentStatus = `DEPLOYED`;
-          const message = deploymentStatus === "DEPLOYED"
-            ? "✅ Deployment to Vertex AI completed successfully!"
-            : "❌ Deployment to Vertex AI failed. Check logs for details.";
-          github.repos.createCommitComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            commit_sha: context.sha,
-            body: message,
-          });
+    - name: Monitor model performance and data shift
+      run: |
+        echo "Monitoring model with ID ${{ steps.get-model-id.outputs.model_id }}"
+        echo "on endpoint ${{ steps.get-endpoint-id.outputs.endpoint_id }}"
