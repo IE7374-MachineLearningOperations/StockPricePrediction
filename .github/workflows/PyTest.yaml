@@ -60,7 +60,7 @@ jobs:
       # Step 8: Decode GCP Service Account Key
       - name: Decode and Write GCP Service Account Key
         run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > /tmp/gcp-key.json
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcp-key.json
         shell: bash
 
       # Step 9: Authenticate with GCP using the Temporary File
