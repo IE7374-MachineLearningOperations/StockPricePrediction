@@ -1,54 +1,16 @@
-name: CI/CD Workflow
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/${PROJECT_ID}/app:latest'
+      - '.'
 
-on:
-  push:
-    branches:
-      - main
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/${PROJECT_ID}/app:latest'
 
-jobs:
-  build-and-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      # Step 1: Checkout Code
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      # Step 2: Set Up Google Cloud CLI
-      - name: Set up Google Cloud CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y google-cloud-sdk
-
-      # Step 3: Authenticate with Google Cloud
-      - name: Authenticate with Google Cloud
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
-        run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcp-key.json
-          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-
-      # Step 4: Build Docker Image
-      - name: Build Docker Image
-        run: |
-          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/stock-price-prediction:latest .
-
-      # Step 5: Push Docker Image to GCR
-      - name: Push Docker Image
-        run: |
-          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/stock-price-prediction:latest
-
-      # Step 6: Deploy to Cloud Run
-      - name: Deploy to Google Cloud Run
-        run: |
-          gcloud run deploy stock-price-prediction \
-            --image=gcr.io/${{ secrets.GCP_PROJECT_ID }}/stock-price-prediction:latest \
-            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
-            --platform=managed \
-            --allow-unauthenticated
-
-      # Step 7: Upload Artifacts to GCS
-      - name: Upload to GCS Bucket
-        run: |
-          gsutil -m cp -r ./artifacts/* gs://${{ secrets.GCS_BUCKET_NAME }}/
+options:
+  logging: GCS_ONLY
+  logBucket: 'gs://vertex_mlops_10'
