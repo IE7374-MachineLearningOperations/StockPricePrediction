@@ -26,17 +26,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-cloud-cli
 
-      # Step 4
-      - name: Decode and Write GCP Service Account Key
-        run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcp-key.json
-        shell: bash
-
-      # Step 5: Authenticate using the Temporary File
+      # Step 4: Authenticate with GCP without writing the key to a file
       - name: Authenticate with GCP
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
-        run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+        run: |
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | gcloud auth activate-service-account --key-file=-
+        shell: bash
 
       # Step 6
       - name: Set GCP Project ID
