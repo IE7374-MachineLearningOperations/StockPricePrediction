@@ -67,11 +67,17 @@ jobs:
         run: |
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
+      - name: Verify Airflow Logs
+        working-directory: ./pipeline/airflow
+        run: |
+          docker-compose logs -f airflow-webserver
+
       - name: Wait for Airflow to Initialize
         working-directory: ./pipeline/airflow
         run: |
-          timeout 300 bash -c 'until docker-compose exec -T airflow-webserver curl -f http://localhost:8080/health; do sleep 10; done'
-  
+          timeout 300 bash -c 'until [ "$(docker-compose ps -q airflow-webserver | xargs docker inspect -f '{{ .State.Health.Status }}')" == "healthy" ]; do sleep 10; done'
+          # timeout 300 bash -c 'until docker-compose exec -T airflow-webserver curl -f http://localhost:8080/; do sleep 10; done'
+          # timeout 600 bash -c 'until docker-compose exec -T airflow-webserver curl -f http://localhost:8080/health; do sleep 20; done'
       # Step 9: Delete .pyc Files
       - name: Delete .pyc Files
         working-directory: ./pipeline/airflow
