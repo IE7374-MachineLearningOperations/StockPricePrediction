@@ -1,35 +1,34 @@
 steps:
-  # Step 1: Run syncgcp.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - 'echo "Syncing all files with GCP bucket..." && gcloud builds submit --config=syncgcp.yaml --logging=NONE'
+      - 'echo "Syncing all files with GCP bucket..." && gcloud builds submit --config=syncgcp.yaml --logging=GCS_ONLY'
 
-  # Step 2: Run pytest.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - 'echo "Running pytests.." && gcloud builds submit --config=PyTest.yaml --logging=NONE'
+      - 'echo "Running pytests.." && gcloud builds submit --config=PyTest.yaml --logging=GCS_ONLY'
 
-  # Step 3: Run airflowtrigger.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - 'echo "Running airflow..." && gcloud builds submit --config=airflowtrigger.yaml --logging=NONE'
+      - 'echo "Running airflow..." && gcloud builds submit --config=airflowtrigger.yaml --logging=GCS_ONLY'
 
-  # Step 4: Run model.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - 'echo "Running model on Vertex AI..." && gcloud builds submit --config=model.yaml --logging=NONE'
+      - 'echo "Running model on Vertex AI..." && gcloud builds submit --config=model.yaml --logging=GCS_ONLY'
 
-  # Step 5: Run deploy.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - 'echo "Deploy Model.." && gcloud builds submit --config=deploy.yaml --logging=NONE'
+      - 'echo "Deploy Model.." && gcloud builds submit --config=deploy.yaml --logging=GCS_ONLY'
+
+options:
+  logging: GCS_ONLY
+  logBucket: 'gs://vertex_mlops_10'
