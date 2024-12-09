@@ -3,7 +3,7 @@ name: Trigger Airflow DAG Workflow
 on:
   push:
     branches:
-      - vy
+      - test_vy
   workflow_dispatch:
 
 jobs:
