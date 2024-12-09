@@ -78,10 +78,3 @@ artifacts:
       - 'StockPricePrediction/*.h5'
 
 timeout: '1200s'
-
-# Trigger configurations for CI/CD
-trigger:
-  - event: 'push'
-    branch: 'main'
-    repo: 'https://github.com/IE7374-MachineLearningOperations/StockPricePrediction.git'
-    description: 'Trigger model training on new commits to main branch.'
