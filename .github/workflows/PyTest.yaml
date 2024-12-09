@@ -7,7 +7,7 @@ on:
       - citest
 
 jobs:
-  test:
+  test-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -73,12 +73,13 @@ jobs:
       - name: Set GCP Project ID
         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
-      # Step 11: Upload coverage reports to GCP bucket
-      - name: Upload coverage reports to GCP bucket
-        env:
-          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+      # Step 11: Build Docker Image
+      - name: Build Docker Image
         run: |
-           CURRENT_DATE=$(date +"%Y-%m-%d")
-           zip -r coverage-report.zip htmlcov/
-           gsutil -m cp coverage-report.zip gs://${GCS_BUCKET_NAME}/Pytest-reports/${CURRENT_DATE}/coverage-report.zip
-           gsutil cp coverage.xml gs://${GCS_BUCKET_NAME}/Pytest-reports/${CURRENT_DATE}/coverage.xml
+          gcloud auth configure-docker us-east1-docker.pkg.dev
+          docker build -t us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/gcf-artifacts/python-test-workflow:${{ github.run_id }} .
+
+      # Step 12: Push Docker Image to Artifact Registry
+      - name: Push Docker Image
+        run: |
+          docker push us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/gcf-artifacts/python-test-workflow:${{ github.run_id }}
