@@ -1,36 +1,54 @@
-steps:
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - 'echo "Syncing all files with GCP bucket..." && gcloud builds submit --config=syncgcp.yaml --logging=GCS_ONLY'
+name: CI/CD Workflow
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - 'echo "Running pytests.." && gcloud builds submit --config=PyTest.yaml --logging=GCS_ONLY'
+on:
+  push:
+    branches:
+      - main
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - 'echo "Running airflow..." && gcloud builds submit --config=airflowtrigger.yaml --logging=GCS_ONLY'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - 'echo "Running model on Vertex AI..." && gcloud builds submit --config=model.yaml --logging=GCS_ONLY'
+    steps:
+      # Step 1: Checkout Code
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - 'echo "Deploy Model.." && gcloud builds submit --config=deploy.yaml --logging=GCS_ONLY'
+      # Step 2: Set Up Google Cloud CLI
+      - name: Set up Google Cloud CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-sdk
 
-trigger:
-  - event: 'push'
-    branch: 'main'
-    repo: 'https://github.com/IE7374-MachineLearningOperations/StockPricePrediction.git'
-    description: 'Trigger model training on new commits to main branch.'
+      # Step 3: Authenticate with Google Cloud
+      - name: Authenticate with Google Cloud
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
+        run: |
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcp-key.json
+          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
+
+      # Step 4: Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t gcr.io/${{ secrets.GCP_PROJECT_ID }}/stock-price-prediction:latest .
+
+      # Step 5: Push Docker Image to GCR
+      - name: Push Docker Image
+        run: |
+          docker push gcr.io/${{ secrets.GCP_PROJECT_ID }}/stock-price-prediction:latest
+
+      # Step 6: Deploy to Cloud Run
+      - name: Deploy to Google Cloud Run
+        run: |
+          gcloud run deploy stock-price-prediction \
+            --image=gcr.io/${{ secrets.GCP_PROJECT_ID }}/stock-price-prediction:latest \
+            --region=${{ secrets.GOOGLE_CLOUD_REGION }} \
+            --platform=managed \
+            --allow-unauthenticated
+
+      # Step 7: Upload Artifacts to GCS
+      - name: Upload to GCS Bucket
+        run: |
+          gsutil -m cp -r ./artifacts/* gs://${{ secrets.GCS_BUCKET_NAME }}/
