@@ -1,16 +1,87 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
-    args:
-      - 'build'
-      - '-t'
-      - 'gcr.io/${PROJECT_ID}/app:latest'
-      - '.'
+  # Step 1: Clone the repository
+  - name: 'gcr.io/cloud-builders/git'
+    args: ['clone', 'https://github.com/IE7374-MachineLearningOperations/StockPricePrediction.git']
 
-  - name: 'gcr.io/cloud-builders/docker'
+  # Step 2: Change directory to the cloned repository
+  - name: 'gcr.io/cloud-builders/bash'
     args:
-      - 'push'
-      - 'gcr.io/${PROJECT_ID}/app:latest'
+      - '-c'
+      - |
+        cd StockPricePrediction &&
+        echo "Repository cloned successfully"
 
-options:
-  logging: GCS_ONLY
-  logBucket: 'gs://vertex_mlops_10'
+  # Step 3: Upload specific files to GCP Bucket
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - '-m'
+      - 'cp'
+      - '-r'
+      - 'StockPricePrediction/*.py'
+      - 'StockPricePrediction/*.ipynb'
+      - 'StockPricePrediction/*.h5'
+      - 'gs://stock_price_prediction_dataset/'
+
+  # Step 4: Install dependencies (e.g., TensorFlow, other required packages)
+  - name: 'gcr.io/cloud-builders/pip'
+    args:
+      - 'install'
+      - '-r'
+      - 'StockPricePrediction/requirements.txt'
+
+  # Step 5: Train the model
+  - name: 'gcr.io/cloud-builders/python'
+    args:
+      - 'StockPricePrediction/train.py'
+
+  # Step 6: Validate the model
+  - name: 'gcr.io/cloud-builders/python'
+    args:
+      - 'StockPricePrediction/validate.py'
+
+  # Step 7: Conditional step to deploy model if validation is successful
+  - name: 'gcr.io/cloud-builders/bash'
+    id: 'Check Validation'
+    args:
+      - '-c'
+      - |
+        ACCURACY=$(python StockPricePrediction/validate.py --get_accuracy) &&
+        if (( $(echo "$ACCURACY > 0.70" | bc -l) )); then
+          echo "Model accuracy is sufficient, proceeding with deployment";
+        else
+          echo "Model accuracy is insufficient, stopping deployment";
+          exit 1;
+        fi
+
+  # Step 8: Save the trained model to the GCP Bucket
+  - name: 'gcr.io/cloud-builders/gsutil'
+    args:
+      - 'cp'
+      - 'StockPricePrediction/models/*.h5'
+      - 'gs://stock_price_prediction_dataset/trained_models/'
+
+  # Step 9: Run Unit Tests
+  - name: 'gcr.io/cloud-builders/python'
+    args:
+      - '-m'
+      - 'unittest'
+      - 'discover'
+      - '-s'
+      - 'StockPricePrediction/tests'
+
+artifacts:
+  objects:
+    location: 'gs://stock_price_prediction_dataset/artifacts/'
+    paths:
+      - 'StockPricePrediction/*.py'
+      - 'StockPricePrediction/*.ipynb'
+      - 'StockPricePrediction/*.h5'
+
+timeout: '1200s'
+
+# Trigger configurations for CI/CD
+trigger:
+  - event: 'push'
+    branch: 'main'
+    repo: 'https://github.com/IE7374-MachineLearningOperations/StockPricePrediction.git'
+    description: 'Trigger model training on new commits to main branch.'
