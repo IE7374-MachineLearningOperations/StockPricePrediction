@@ -18,18 +18,4 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
         run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
-# jobs:
-#   setup:
-#     runs-on: ubuntu-latest
-#     steps:
-# # Step 8: Decode GCP Service Account Key
-#       - name: Decode and Write GCP Service Account Key
-#         run: |
-#           echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > /tmp/gcp-key.json
-#         shell: bash
 
-#       # Step 9: Authenticate with GCP using the Temporary File
-#       - name: Authenticate with GCP
-#         env:
-#           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
-#         run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
