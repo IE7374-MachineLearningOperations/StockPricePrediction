@@ -29,6 +29,8 @@ steps:
       - '-c'
       - 'echo "Deploy Model.." && gcloud builds submit --config=deploy.yaml --logging=GCS_ONLY'
 
-options:
-  logging: GCS_ONLY
-  logBucket: 'gs://vertex_mlops_10'
+trigger:
+  - event: 'push'
+    branch: 'main'
+    repo: 'https://github.com/IE7374-MachineLearningOperations/StockPricePrediction.git'
+    description: 'Trigger model training on new commits to main branch.'
