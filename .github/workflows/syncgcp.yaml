@@ -1,4 +1,4 @@
-name: Upload to GCP Bucket Workflow
+name: Upload to GCP Bucket and Build Docker Image Workflow
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload_to_gcp:
+  upload_and_dockerize:
     runs-on: ubuntu-22.04
 
     steps:
@@ -26,13 +26,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y google-cloud-cli
 
-      # Step 4: Authenticate with GCP without writing the key to a file
-      - name: Authenticate with GCP
+      # Step 4: Decode and Write GCP Service Account Key
+      - name: Decode and Write GCP Service Account Key
         run: |
-          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | gcloud auth activate-service-account --key-file=-
+          echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" | base64 -d > /tmp/gcp-key.json
         shell: bash
 
-      # Step 6
+      # Step 5: Authenticate using the Temporary File
+      - name: Authenticate with GCP
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcp-key.json
+        run: gcloud auth activate-service-account --key-file=${GOOGLE_APPLICATION_CREDENTIALS}
+
+      # Step 6: Set GCP Project ID
       - name: Set GCP Project ID
         run: gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
 
@@ -44,12 +50,12 @@ jobs:
           gsutil -m cp -r artifacts/* gs://${GCS_BUCKET_NAME}/artifacts/
           gsutil -m cp -r pipeline/airflow/dags/* gs://${GCS_BUCKET_NAME}/airflow-dags/
 
-      # Step 8
+      # Step 8: Remove Broken Symbolic Links
       - name: Remove Broken Symbolic Links
         run: |
           find . -xtype l -delete
 
-      # Step 9: Bucket with Directory Structure
+      # Step 9: Upload All Files to GCP Bucket
       - name: Upload All Files to GCP Bucket
         env:
           GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
@@ -63,3 +69,14 @@ jobs:
         run: |
           echo "Listing files in GCS bucket:"
           gsutil ls gs://${GCS_BUCKET_NAME}/
+
+      # Step 11: Build Docker Image
+      - name: Build Docker Image
+        run: |
+          gcloud auth configure-docker us-east1-docker.pkg.dev
+          docker build -t us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/gcf-artifacts/upload-workflow:${{ github.run_id }} .
+
+      # Step 12: Push Docker Image
+      - name: Push Docker Image
+        run: |
+          docker push us-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/gcf-artifacts/upload-workflow:${{ github.run_id }}
