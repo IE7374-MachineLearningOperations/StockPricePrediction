@@ -1,44 +1,35 @@
-name: GCP CI/CD Workflow
-#runs-on: ubuntu-22.04
 steps:
-  # Step 1: Run syncgcp.yaml
+  # Step 1: Run syncgcp.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - |
-        echo "Running syncgcp.yaml..."
-        gcloud builds submit --config=syncgcp.yaml
+      - 'echo "Syncing all files with GCP bucket..." && gcloud builds submit --config=syncgcp.yaml --logging=CLOUD_LOGGING_ONLY'
 
-  # Step 2: Run pytest.yaml
+  # Step 2: Run pytest.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - |
-        echo "Running pytest.yaml..."
-        gcloud builds submit --config=PyTest.yaml
+      - 'echo "Running pytests.." && gcloud builds submit --config=PyTest.yaml --logging=CLOUD_LOGGING_ONLY'
 
-  # Step 3: Run airflowtrigger.yaml
+  # Step 3: Run airflowtrigger.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - |
-        echo "Running airflowtrigger.yaml..."
-        gcloud builds submit --config=airflowtrigger.yaml
+      - 'echo "Running airflow..." && gcloud builds submit --config=airflowtrigger.yaml --logging=CLOUD_LOGGING_ONLY'
 
-  # Step 4: Run model.yaml
+  # Step 4: Run model.yaml with Cloud Logging Only option
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - '-c'
-      - |
-        echo "Running model.yaml..."
-        gcloud builds submit --config=model.yaml
+      - 'echo "Running model on Vertex AI..." && gcloud builds submit --config=model.yaml --logging=CLOUD_LOGGING_ONLY'
 
-# Trigger by GitHub Push
-trigger:
-  event:
-    type: PUSH
-    branch: 'main' 
+  # Step 5: Run deploy.yaml with Cloud Logging Only option
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'echo "Deploy Model.." && gcloud builds submit --config=deploy.yaml --logging=CLOUD_LOGGING_ONLY'
