@@ -67,10 +67,10 @@ jobs:
         run: |
           docker-compose exec -T --user root airflow-scheduler bash -c "chmod -R 777 /opt/airflow/logs/"
 
-      - name: Verify Airflow Logs
-        working-directory: ./pipeline/airflow
-        run: |
-          docker-compose logs -f airflow-webserver
+      # - name: Verify Airflow Logs
+      #   working-directory: ./pipeline/airflow
+      #   run: |
+      #     docker-compose logs -f airflow-webserver
 
       - name: Wait for Airflow to Initialize
         working-directory: ./pipeline/airflow
