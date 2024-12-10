@@ -1,0 +1,107 @@
+name: Train and Deploy ML Model
+
+on:
+  push:
+    branches:
+      - main
+      - citest
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Google Cloud SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
+
+      # Step 3: Build Docker Image
+      - name: Build Docker Image
+        run: |
+          IMAGE_NAME="gcr.io/${{ secrets.GCP_PROJECT_ID }}/mpg"
+          MODEL_VERSION="v2"
+
+          echo "Building Docker image..."
+          docker build ./ -t ${IMAGE_NAME}:${MODEL_VERSION} -f trainer/Dockerfile
+
+          echo "Pushing Docker image..."
+          docker push ${IMAGE_NAME}:${MODEL_VERSION}
+
+          echo "Tagging image as 'latest'..."
+          docker tag ${IMAGE_NAME}:${MODEL_VERSION} ${IMAGE_NAME}:latest
+          docker push ${IMAGE_NAME}:latest
+
+      # Step 4: Retrieve Image Digest
+      - name: Retrieve Image Digest
+        id: digest
+        run: |
+          IMAGE_NAME="gcr.io/${{ secrets.GCP_PROJECT_ID }}/mpg"
+          MODEL_VERSION="v2"
+          DIGEST=$(gcloud container images describe ${IMAGE_NAME}:${MODEL_VERSION} --format="value(image_summary.fully_qualified_digest)")
+          echo "Digest: $DIGEST"
+          echo "::set-output name=digest::$DIGEST"
+
+      # Step 5: Upload Model to Vertex AI
+      - name: Upload Model to Vertex AI
+        id: model-upload
+        run: |
+          IMAGE_NAME="gcr.io/${{ secrets.GCP_PROJECT_ID }}/mpg"
+          MODEL_VERSION="v2"
+          DIGEST=${{ steps.digest.outputs.digest }}
+          MODEL_ID=$(gcloud ai models upload \
+              --region=us-east1 \
+              --display-name=model-${MODEL_VERSION} \
+              --artifact-uri=gs://stock_price_prediction_dataset/model_checkpoints/ \
+              --container-image-uri=${DIGEST} \
+              --format="value(name)")
+          echo "Model ID: $MODEL_ID"
+          echo "::set-output name=model_id::$MODEL_ID"
+
+      # Step 6: Create or Retrieve Endpoint
+      - name: Create or Retrieve Endpoint
+        id: endpoint
+        run: |
+          ENDPOINT_NAME="model-endpoint-v2"
+          ENDPOINT_ID=$(gcloud ai endpoints list \
+              --region=us-east1 \
+              --filter="display_name:${ENDPOINT_NAME}" \
+              --format="value(name)")
+
+          if [ -z "$ENDPOINT_ID" ]; then
+            echo "Creating new endpoint: ${ENDPOINT_NAME}"
+            ENDPOINT_ID=$(gcloud ai endpoints create \
+                --region=us-east1 \
+                --display-name=${ENDPOINT_NAME} \
+                --format="value(name)")
+          else
+            echo "Using existing endpoint: ${ENDPOINT_NAME}"
+          fi
+
+          echo "Endpoint ID: $ENDPOINT_ID"
+          echo "::set-output name=endpoint_id::$ENDPOINT_ID"
+
+      # Step 7: Deploy Model to Endpoint
+      - name: Deploy Model
+        run: |
+          ENDPOINT_ID=${{ steps.endpoint.outputs.endpoint_id }}
+          MODEL_ID=${{ steps.model-upload.outputs.model_id }}
+
+          gcloud ai endpoints deploy-model \
+              $ENDPOINT_ID \
+              --region=us-east1 \
+              --model=$MODEL_ID \
+              --display-name=model-v2 \
+              --machine-type=n1-standard-2 \
+              --traffic-split="0=100"
+
+      # Step 8: Notify Completion
+      - name: Notify Completion
+        run: echo "Model deployment completed successfully."
