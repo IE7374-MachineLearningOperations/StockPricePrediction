@@ -35,7 +35,10 @@ jobs:
           MODEL_ID="5354080667548254208"    # Model ID
           TRAINING_DATA="gs://stock_price_prediction_dataset/Data/pipeline/airflow/dags/data/scaled_data_train.csv"
           ALERT_EMAIL="girimanohar.v@example.com"
-          
+          PREDICTION_SAMPLING_RATE=0.1 
+          TRAINING_SAMPLING_RATE=0.5 
+          GCS_URIS="gs://stock_price_prediction_dataset/Data/pipeline/airflow/dags/data/scaled_data_train.csv" 
+
           echo "Checking if the monitor exists..."
           MONITOR_NAME=$(gcloud ai model-monitoring-jobs list \
             --region=$REGION \
@@ -45,14 +48,20 @@ jobs:
           if [ -z "$MONITOR_NAME" ]; then
             echo "Creating a new monitor..."
             gcloud ai model-monitoring-jobs create \
-              --region=$REGION \
-              --model=$MODEL_ID \
-              --display-name="model-expo-monitor" \
-              --training-dataset=$TRAINING_DATA \
-              --alert-email=$ALERT_EMAIL
-          else
-            echo "Monitor already exists. Running a batch monitoring job..."
-            gcloud ai model-monitoring-jobs run-batch \
-              --region=$REGION \
-              --monitor=$MONITOR_ID
-          fi
+                --region=$REGION \
+                --endpoint=$ENDPOINT \
+                --display-name=$DISPLAY_NAME \
+                --emails=$ALERT_EMAILS \
+                --prediction-sampling-rate=$PREDICTION_SAMPLING_RATE \
+                --training-sampling-rate=$TRAINING_SAMPLING_RATE \
+                --gcs-uris=$GCS_URIS \
+                --[no-]anomaly-cloud-logging \
+                --monitoring-frequency=24 
+            
+            # Check for success
+            if [ $? -eq 0 ]; then
+                echo "Model monitoring job created successfully."
+            else
+                echo "Error: Failed to create model monitoring job."
+                exit 1
+            fi
