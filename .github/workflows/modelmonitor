@@ -1,0 +1,54 @@
+name: Monitor Vertex AI Model
+
+on:
+# To run daily at 5:00 PM EST
+  schedule:
+    - 0 22 * * *
+  workflow_dispatch:  
+
+jobs:
+  monitor-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Google Cloud SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.0
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+          export_default_credentials: true
+
+      # Step 3: Run Monitoring Job
+      - name: Create or Run Monitoring Job
+        run: |
+          REGION="us-east1"
+          MONITOR_ID="2888214736028041216"  # Monitor resource ID
+          MODEL_ID="5354080667548254208"    # Model ID
+          TRAINING_DATA="gs://stock_price_prediction_dataset/Data/pipeline/airflow/dags/data/scaled_data_train.csv"
+          ALERT_EMAIL="alerts@example.com"
+
+          echo "Checking if the monitor exists..."
+          MONITOR_NAME=$(gcloud ai model-monitoring jobs list \
+            --region=$REGION \
+            --filter="monitor_id=$MONITOR_ID" \
+            --format="value(name)")
+
+          if [ -z "$MONITOR_NAME" ]; then
+            echo "Creating a new monitor..."
+            gcloud ai model-monitoring jobs create \
+              --region=$REGION \
+              --model=$MODEL_ID \
+              --display-name="model-expo-monitor" \
+              --training-dataset=$TRAINING_DATA \
+              --alert-email=$ALERT_EMAIL
+          else
+            echo "Monitor already exists. Running a batch monitoring job..."
+            gcloud ai model-monitoring jobs run-batch \
+              --region=$REGION \
+              --monitor=$MONITOR_ID
+          fi
