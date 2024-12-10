@@ -28,13 +28,10 @@ jobs:
         run: |
           IMAGE_NAME="gcr.io/${{ secrets.GCP_PROJECT_ID }}/mpg"
           MODEL_VERSION="v2"
-
           echo "Building Docker image..."
-          docker build ./ -t ${IMAGE_NAME}:${MODEL_VERSION} -f trainer/Dockerfile
-
+          docker build ./ -t ${IMAGE_NAME}:${MODEL_VERSION} -f GCP/gcpdeploy/trainer/Dockerfile
           echo "Pushing Docker image..."
           docker push ${IMAGE_NAME}:${MODEL_VERSION}
-
           echo "Tagging image as 'latest'..."
           docker tag ${IMAGE_NAME}:${MODEL_VERSION} ${IMAGE_NAME}:latest
           docker push ${IMAGE_NAME}:latest
@@ -46,6 +43,10 @@ jobs:
           IMAGE_NAME="gcr.io/${{ secrets.GCP_PROJECT_ID }}/mpg"
           MODEL_VERSION="v2"
           DIGEST=$(gcloud container images describe ${IMAGE_NAME}:${MODEL_VERSION} --format="value(image_summary.fully_qualified_digest)")
+          if [ -z "$DIGEST" ]; then
+            echo "Error: Failed to retrieve image digest. Ensure the image was pushed successfully."
+            exit 1
+          fi
           echo "Digest: $DIGEST"
           echo "::set-output name=digest::$DIGEST"
 
@@ -62,6 +63,10 @@ jobs:
               --artifact-uri=gs://stock_price_prediction_dataset/model_checkpoints/ \
               --container-image-uri=${DIGEST} \
               --format="value(name)")
+          if [ -z "$MODEL_ID" ]; then
+            echo "Error: Model upload to Vertex AI failed."
+            exit 1
+          fi
           echo "Model ID: $MODEL_ID"
           echo "::set-output name=model_id::$MODEL_ID"
 
@@ -74,17 +79,19 @@ jobs:
               --region=us-east1 \
               --filter="display_name:${ENDPOINT_NAME}" \
               --format="value(name)")
-
           if [ -z "$ENDPOINT_ID" ]; then
             echo "Creating new endpoint: ${ENDPOINT_NAME}"
             ENDPOINT_ID=$(gcloud ai endpoints create \
                 --region=us-east1 \
                 --display-name=${ENDPOINT_NAME} \
                 --format="value(name)")
+            if [ -z "$ENDPOINT_ID" ]; then
+              echo "Error: Failed to create endpoint."
+              exit 1
+            fi
           else
             echo "Using existing endpoint: ${ENDPOINT_NAME}"
           fi
-
           echo "Endpoint ID: $ENDPOINT_ID"
           echo "::set-output name=endpoint_id::$ENDPOINT_ID"
 
@@ -93,7 +100,6 @@ jobs:
         run: |
           ENDPOINT_ID=${{ steps.endpoint.outputs.endpoint_id }}
           MODEL_ID=${{ steps.model-upload.outputs.model_id }}
-
           gcloud ai endpoints deploy-model \
               $ENDPOINT_ID \
               --region=us-east1 \
@@ -101,7 +107,12 @@ jobs:
               --display-name=model-v2 \
               --machine-type=n1-standard-2 \
               --traffic-split="0=100"
+          if [ $? -ne 0 ]; then
+            echo "Error: Model deployment failed."
+            exit 1
+          fi
+          echo "Model deployed successfully."
 
       # Step 8: Notify Completion
       - name: Notify Completion
-        run: echo "Model deployment completed successfully."
+        run: echo "Model deployment process completed successfully."
