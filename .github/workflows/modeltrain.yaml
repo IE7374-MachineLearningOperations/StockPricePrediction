@@ -29,12 +29,12 @@ jobs:
           IMAGE_NAME="gcr.io/${{ secrets.GCP_PROJECT_ID }}/mpg"
           MODEL_VERSION="v2"
           echo "Building Docker image..."
-          docker build ./ -t ${IMAGE_NAME}:${MODEL_VERSION} -f GCP/gcpdeploy/trainer/Dockerfile
-          echo "Pushing Docker image..."
-          docker push ${IMAGE_NAME}:${MODEL_VERSION}
+          # docker build ./ -t ${IMAGE_NAME}:${MODEL_VERSION} -f GCP/gcpdeploy/trainer/Dockerfile
+          # echo "Pushing Docker image..."
+          # docker push ${IMAGE_NAME}:${MODEL_VERSION}
           echo "Tagging image as 'latest'..."
-          docker tag ${IMAGE_NAME}:${MODEL_VERSION} ${IMAGE_NAME}:latest
-          docker push ${IMAGE_NAME}:latest
+          # docker tag ${IMAGE_NAME}:${MODEL_VERSION} ${IMAGE_NAME}:latest
+          # docker push ${IMAGE_NAME}:latest
 
       # Step 4: Retrieve Image Digest
       - name: Retrieve Image Digest
