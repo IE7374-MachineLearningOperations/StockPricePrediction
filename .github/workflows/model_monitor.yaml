@@ -35,16 +35,16 @@ jobs:
           MODEL_ID="5354080667548254208"    # Model ID
           TRAINING_DATA="gs://stock_price_prediction_dataset/Data/pipeline/airflow/dags/data/scaled_data_train.csv"
           ALERT_EMAIL="girimanohar.v@example.com"
-
+          
           echo "Checking if the monitor exists..."
-          MONITOR_NAME=$(gcloud ai model-monitoring jobs list \
+          MONITOR_NAME=$(gcloud ai model-monitoring-jobs list \
             --region=$REGION \
-            --filter="monitor_id=$MONITOR_ID" \
+            --filter="name:$MONITOR_ID" \
             --format="value(name)")
-
+          
           if [ -z "$MONITOR_NAME" ]; then
             echo "Creating a new monitor..."
-            gcloud ai model-monitoring jobs create \
+            gcloud ai model-monitoring-jobs create \
               --region=$REGION \
               --model=$MODEL_ID \
               --display-name="model-expo-monitor" \
@@ -52,7 +52,7 @@ jobs:
               --alert-email=$ALERT_EMAIL
           else
             echo "Monitor already exists. Running a batch monitoring job..."
-            gcloud ai model-monitoring jobs run-batch \
+            gcloud ai model-monitoring-jobs run-batch \
               --region=$REGION \
               --monitor=$MONITOR_ID
           fi
