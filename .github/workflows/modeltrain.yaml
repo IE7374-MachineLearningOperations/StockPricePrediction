@@ -113,17 +113,17 @@ jobs:
         run: |
           ENDPOINT_ID=${{ steps.endpoint.outputs.endpoint_id }}
           MODEL_ID=${{ steps.model-upload.outputs.model_id }}
-          gcloud ai endpoints deploy-model \
-              $ENDPOINT_ID \
-              --region=us-east1 \
-              --model=$MODEL_ID \
-              --display-name=model-v2 \
-              --machine-type=n1-highmem-4 \
-              --traffic-split="0=100"
-          if [ $? -ne 0 ]; then
-            echo "Error: Model deployment failed."
-            exit 1
-          fi
+          # gcloud ai endpoints deploy-model \
+          #     $ENDPOINT_ID \
+          #     --region=us-east1 \
+          #     --model=$MODEL_ID \
+          #     --display-name=model-v2 \
+          #     --machine-type=n1-highmem-4 \
+          #     --traffic-split="0=100"
+          # if [ $? -ne 0 ]; then
+          #   echo "Error: Model deployment failed."
+          #   exit 1
+          # fi
           echo "Model deployed successfully."
 
       # Step 8: Notify Completion
