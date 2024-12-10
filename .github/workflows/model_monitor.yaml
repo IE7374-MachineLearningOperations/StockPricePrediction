@@ -1,9 +1,13 @@
 name: Monitor Vertex AI Model
 
 on:
+  push:
+    branches:
+      - main
+      - citest
 # To run daily at 5:00 PM EST
   schedule:
-    - 0 22 * * *
+    - cron: '0 22 * * *'
   workflow_dispatch:  
 
 jobs:
