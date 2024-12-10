@@ -49,24 +49,37 @@ jobs:
           fi
           echo "Digest: $DIGEST"
           echo "::set-output name=digest::$DIGEST"
-
+          
       # Step 5: Upload Model to Vertex AI
-      - name: Upload Model to Vertex AI
+      - name: Upload or Retrieve Model
         id: model-upload
         run: |
           IMAGE_NAME="gcr.io/${{ secrets.GCP_PROJECT_ID }}/mpg"
           MODEL_VERSION="v2"
           DIGEST=${{ steps.digest.outputs.digest }}
+
+          # Try uploading the model
           MODEL_ID=$(gcloud ai models upload \
               --region=us-east1 \
               --display-name=model-${MODEL_VERSION} \
               --artifact-uri=gs://stock_price_prediction_dataset/model_checkpoints/ \
               --container-image-uri=${DIGEST} \
               --format="value(name)")
+
+          # If upload fails, try retrieving the existing model
           if [ -z "$MODEL_ID" ]; then
-            echo "Error: Model upload to Vertex AI failed."
+            echo "Upload failed, trying to retrieve existing model..."
+            MODEL_ID=$(gcloud ai models list \
+                --region=us-east1 \
+                --filter="display_name:model-${MODEL_VERSION}" \
+                --format="value(name)" | head -n 1)
+          fi
+
+          if [ -z "$MODEL_ID" ]; then
+            echo "Error: Failed to upload or retrieve the model."
             exit 1
           fi
+
           echo "Model ID: $MODEL_ID"
           echo "::set-output name=model_id::$MODEL_ID"
 
