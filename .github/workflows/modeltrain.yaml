@@ -118,7 +118,7 @@ jobs:
               --region=us-east1 \
               --model=$MODEL_ID \
               --display-name=model-v2 \
-              --machine-type=n1-standard-2 \
+              --machine-type=n1-highmem-4 \
               --traffic-split="0=100"
           if [ $? -ne 0 ]; then
             echo "Error: Model deployment failed."
